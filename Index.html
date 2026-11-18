@@ -1,0 +1,1374 @@
+<!-- ... existing code ... -->
+    <title>CapSwap — Intercambio de Chapas</title>
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CapSwap">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS SDK v2 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+            <div class="flex items-center justify-between gap-4">
+                <!-- Logo CapSwap (personalizable mediante imagen) -->
+                <div class="flex items-center gap-2.5">
+                    <div id="header-brand-logo-box" onclick="switchTab('my-collection')" title="CapSwap — Inicio" class="cursor-pointer flex items-center">
+                        <!-- Renderizado dinámicamente según si has subido tu imagen de logo -->
+                    </div>
+                    <button type="button" onclick="openBrandLogoModal()" title="Subir o cambiar imagen de logo" class="p-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-amber-50 hover:border-amber-300 text-slate-500 hover:text-amber-700 transition-colors cursor-pointer">
+                        <i data-lucide="image-plus" class="w-4 h-4"></i>
+                    </button>
+                    <button type="button" id="pwa-install-btn" onclick="triggerPwaInstall()" title="Instalar App en el móvil o PC" class="hidden px-2.5 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold items-center gap-1.5 transition-colors cursor-pointer">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                        <span class="hidden sm:inline">Instalar App</span>
+                    </button>
+                    <span id="cloud-sync-indicator" title="Estado de sincronización en la nube" class="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-full bg-slate-100 text-slate-500 text-[10px] font-semibold">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        <span>Nube activa</span>
+                    </span>
+                </div>
+
+                <!-- Acceso al perfil con el nombre de usuario en la esquina superior derecha -->
+                <button id="header-profile-btn" onclick="switchTab('profile')" title="Editar mi perfil" class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-amber-300 bg-amber-50/70 hover:bg-amber-100 text-slate-800 transition-all cursor-pointer shadow-2xs shrink-0">
+                    <div id="header-avatar-box" class="w-8 h-8 rounded-full bg-amber-600 text-white font-bold text-xs flex items-center justify-center overflow-hidden shrink-0">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                    </div>
+                    <div class="text-left leading-tight">
+                        <span id="header-username-text" class="block text-xs sm:text-sm font-bold text-slate-900">@usuario</span>
+                        <span class="block text-[10px] font-semibold text-amber-700">Mi perfil</span>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Fila 2: Menú de navegación debajo (Mis Repetidas, Lista de Deseos, Explorar e Intercambios) -->
+            <nav class="flex items-center justify-center sm:justify-start gap-1.5 sm:gap-2 bg-slate-100 p-1 rounded-xl w-full sm:w-fit overflow-x-auto">
+                <button id="tab-btn-my-collection" onclick="switchTab('my-collection')" class="tab-btn flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-white text-slate-900 shadow-xs cursor-pointer shrink-0">
+                    <i data-lucide="grid" class="w-4 h-4 text-amber-600"></i>
+                    <span>Mis Repetidas</span>
+                    <span id="badge-my-count" class="ml-0.5 px-1.5 py-0.2 text-xs rounded-full bg-amber-100 text-amber-800 font-bold">0</span>
+                </button>
+
+                <button id="tab-btn-wishlist" onclick="switchTab('wishlist')" class="tab-btn flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all cursor-pointer shrink-0">
+                    <i data-lucide="heart" class="w-4 h-4 text-rose-500"></i>
+                    <span>Busco</span>
+                    <span id="badge-wishlist-count" class="ml-0.5 px-1.5 py-0.2 text-xs rounded-full bg-rose-100 text-rose-800 font-bold">0</span>
+                </button>
+
+                <button id="tab-btn-explore" onclick="switchTab('explore')" class="tab-btn flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all cursor-pointer shrink-0">
+                    <i data-lucide="repeat" class="w-4 h-4 text-emerald-600"></i>
+                    <span>Explorar</span>
+                </button>
+
+                <button id="tab-btn-history" onclick="switchTab('history')" class="tab-btn flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all cursor-pointer shrink-0">
+                    <i data-lucide="handshake" class="w-4 h-4 text-indigo-600"></i>
+                    <span>Intercambios</span>
+                    <span id="badge-trades-count" class="ml-0.5 px-1.5 py-0.2 text-xs rounded-full bg-indigo-100 text-indigo-800 font-bold">0</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+<!-- ... existing code ... -->
+            <!-- Buscador rápido por notas, categoría y país -->
+            <div class="space-y-3 bg-white p-3.5 rounded-xl border border-slate-200">
+                <div class="flex flex-col sm:flex-row gap-3 items-center justify-between">
+                    <div class="relative w-full sm:w-80">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                        <input type="text" id="my-search-input" oninput="renderMyCollection()" placeholder="Buscar en notas, país o etiqueta..." class="w-full pl-9 pr-4 py-1.5 rounded-lg border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500">
+                    </div>
+                    <span class="text-xs text-slate-500 font-medium">Mostrando <strong id="my-visible-count" class="text-slate-800">0</strong> modelos (<strong id="my-total-units" class="text-amber-700">0</strong> unidades repetidas)</span>
+                </div>
+
+                <!-- Filtro rápido por categoría -->
+                <div id="my-category-filter-bar" class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100">
+                    <!-- Chips generados dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Cuadrícula ultra-compacta de Mis Repetidas -->
+            <div id="my-caps-grid" class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-2.5">
+                <!-- Tarjetas compactas generadas dinámicamente -->
+            </div>
+        </section>
+
+        <!-- ===================================================== -->
+        <!-- VISTA 1B: LISTA DE DESEOS ("BUSCO")                   -->
+        <!-- ===================================================== -->
+        <section id="view-wishlist" class="hidden space-y-5">
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 class="font-display font-extrabold text-xl sm:text-2xl text-slate-900 flex items-center gap-2">
+                        <i data-lucide="heart" class="w-6 h-6 text-rose-500"></i>
+                        <span>Mi Lista de Deseos</span>
+                    </h1>
+                    <p class="text-slate-500 text-xs sm:text-sm mt-1">Apunta o sube fotos de las chapas que estás buscando para que otros coleccionistas sepan qué ofrecerte.</p>
+                </div>
+                <button onclick="openWishlistModal()" class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs sm:text-sm shadow-sm flex items-center gap-2 transition-all cursor-pointer self-start md:self-auto">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>Añadir a Lista de Deseos</span>
+                </button>
+            </div>
+
+            <div id="my-wishlist-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                <!-- Deseos generados dinámicamente -->
+            </div>
+        </section>
+
+        <!-- ===================================================== -->
+        <!-- VISTA 2: EXPLORAR COLECCIONISTAS E INTERCAMBIAR       -->
+        <!-- ===================================================== -->
+<!-- ... existing code ... -->
+                        <div class="mt-3">
+                            <h2 id="profile-preview-name" class="font-display font-extrabold text-xl text-slate-900">Álex Martín</h2>
+                            <div class="flex flex-wrap items-center gap-2 mt-0.5">
+                                <p id="profile-preview-username" class="text-xs font-semibold text-amber-600">@Alex_Coleccion</p>
+                                <span id="profile-preview-reputation" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[11px] font-bold">
+                                    ★ Sin valoraciones aún
+                                </span>
+                            </div>
+                        </div>
+<!-- ... existing code ... -->
+                    <div class="grid grid-cols-6 gap-2" id="preset-designs-grid"></div>
+                    </div>
+
+                    <!-- Etiquetas rápidas de categoría y país (para 1 chapa o lote troceado) -->
+                    <div id="single-cap-tags-box" class="space-y-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Categoría rápida</label>
+                            <div id="new-cap-category-pills" class="flex flex-wrap gap-1.5"></div>
+                        </div>
+
+                        <div class="relative">
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">País (escribe 3 letras para sugerencias)</label>
+                            <div class="relative">
+                                <i data-lucide="globe" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                                <input type="text" id="new-cap-country-input" autocomplete="off" oninput="handleCountryInput('new-cap-country-input', 'new-cap-country-suggestions')" onfocus="handleCountryInput('new-cap-country-input', 'new-cap-country-suggestions')" placeholder="Ej. España, Alemania, Bélgica, México..." class="w-full pl-8 pr-3 py-1.5 rounded-lg border border-slate-300 bg-white text-xs sm:text-sm focus:outline-none focus:border-amber-500">
+                            </div>
+                            <div id="new-cap-country-suggestions" class="hidden absolute z-30 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-36 overflow-y-auto"></div>
+                        </div>
+                    </div>
+
+                    <!-- Unidades repetidas (privado, para foto única o diseño rápido) -->
+                    <div id="single-cap-qty-box" class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center bg-amber-50/60 p-3.5 rounded-xl border border-amber-200/80">
+<!-- ... existing code ... -->
+                <!-- Vista editable (cuando es una de tus propias repetidas) -->
+                <div id="zoom-editable-box" class="hidden w-full text-left space-y-3 bg-amber-50/50 rounded-xl p-4 border border-amber-200">
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">Categoría</label>
+                        <div id="edit-cap-category-pills" class="flex flex-wrap gap-1"></div>
+                    </div>
+
+                    <div class="relative">
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">País</label>
+                        <input type="text" id="edit-cap-country-input" autocomplete="off" oninput="handleCountryInput('edit-cap-country-input', 'edit-cap-country-suggestions')" placeholder="Escribe 3 letras..." class="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:border-amber-500">
+                        <div id="edit-cap-country-suggestions" class="hidden absolute z-30 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-32 overflow-y-auto"></div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">Editar notas de esta chapa</label>
+                        <textarea id="edit-cap-notes-input" rows="2" placeholder="Marca, edición, detalle..." class="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:border-amber-500"></textarea>
+                    </div>
+
+                    <div class="flex items-center justify-between gap-2">
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-600">Unidades repetidas</label>
+                        <input type="number" id="edit-cap-qty-input" min="1" max="999" value="1" class="w-20 px-2.5 py-1 rounded-lg border border-slate-300 text-xs font-bold text-center bg-white">
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-2 pt-1">
+                        <button type="button" onclick="saveEditedCap()" class="flex-1 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-xs cursor-pointer">
+                            Guardar cambios
+                        </button>
+                        <button type="button" onclick="deleteCapFromZoom()" class="px-3.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold cursor-pointer">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODAL 9: AÑADIR CHAPA A LA LISTA DE DESEOS ("BUSCO")      -->
+    <!-- ========================================================= -->
+    <div id="wishlist-modal" onclick="closeWishlistModal()" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div onclick="event.stopPropagation()" class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+            <div class="px-6 py-4 bg-rose-600 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="heart" class="w-5 h-5"></i>
+                    <h3 class="font-display font-bold text-lg">Añadir a Lista de Deseos</h3>
+                </div>
+                <button type="button" onclick="closeWishlistModal()" class="p-1 rounded-lg text-rose-100 hover:text-white cursor-pointer">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleAddWishlistItem(event)" class="p-6 space-y-4">
+                <div class="flex items-center gap-4 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <div id="wishlist-photo-preview" class="w-16 h-16 rounded-xl bg-white border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
+                        <i data-lucide="image" class="w-6 h-6 text-slate-300"></i>
+                    </div>
+                    <div class="space-y-1.5">
+                        <input type="file" id="wishlist-photo-input" accept="image/*" onchange="handleWishlistPhotoUpload(event)" class="hidden">
+                        <button type="button" onclick="document.getElementById('wishlist-photo-input').click()" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer">
+                            <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+                            <span>Foto de referencia (opcional)</span>
+                        </button>
+                        <p class="text-[11px] text-slate-500">Si tienes una imagen de la chapa que buscas, súbela aquí.</p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Categoría</label>
+                    <div id="wishlist-category-pills" class="flex flex-wrap gap-1.5"></div>
+                </div>
+
+                <div class="relative">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">País (opcional, escribe 3 letras)</label>
+                    <input type="text" id="wishlist-country-input" autocomplete="off" oninput="handleCountryInput('wishlist-country-input', 'wishlist-country-suggestions')" placeholder="Ej. España, Japón, Irlanda..." class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:border-rose-500">
+                    <div id="wishlist-country-suggestions" class="hidden absolute z-30 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-36 overflow-y-auto"></div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">¿Qué chapa buscas? *</label>
+                    <textarea id="wishlist-notes-input" required rows="2" placeholder="Ej. Estrella Galicia Edición Especial, Coca-Cola Mundial 1998..." class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-rose-500"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="closeWishlistModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 cursor-pointer">Cancelar</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-sm cursor-pointer">Guardar en Deseos</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODAL 10: VER LISTA DE DESEOS DE OTRO COLECCIONISTA       -->
+    <!-- ========================================================= -->
+    <div id="partner-wishlist-modal" onclick="closePartnerWishlistModal()" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div onclick="event.stopPropagation()" class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden">
+            <div class="px-6 py-4 bg-rose-600 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="heart" class="w-5 h-5"></i>
+                    <h3 class="font-display font-bold text-base sm:text-lg">Lo que busca <span id="partner-wishlist-username">@Usuario</span></h3>
+                </div>
+                <button type="button" onclick="closePartnerWishlistModal()" class="p-1 rounded-lg text-rose-100 hover:text-white cursor-pointer">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-5">
+                <div id="partner-wishlist-list" class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-80 overflow-y-auto"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor de notificaciones Toast -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm"></div>
+
+    <!-- Conexión real a Supabase (Base de datos + Sincronización en tiempo real) -->
+    <script>
+        const SUPABASE_URL = 'https://rjtnabhsqfkusbqrdwbn.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_d9TaUaJ4YEuUOELBTpAfFQ_GGCcI9IA';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        window.CapSwapCloud = {
+            enabled: false,
+            client: supabaseClient,
+
+            async init() {
+                try {
+                    // Verificar conexión y descargar cuentas/colecciones sincronizadas
+                    const { data, error } = await this.client
+                        .from('capswap_sync')
+                        .select('*');
+
+                    if (error) {
+                        console.warn('Aún no existe la tabla capswap_sync o está pendiente de crear:', error.message);
+                        return false;
+                    }
+
+                    this.enabled = true;
+                    const ind = document.getElementById('cloud-sync-indicator');
+                    if (ind) {
+                        ind.classList.remove('hidden');
+                        ind.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span><span>Supabase conectado</span>`;
+                    }
+
+                    if (Array.isArray(data) && data.length > 0 && typeof window.mergeCloudAccounts === 'function') {
+                        const mappedAccounts = data.map(row => row.payload).filter(Boolean);
+                        window.mergeCloudAccounts(mappedAccounts);
+                    }
+
+                    // Escuchar cambios en tiempo real de otros coleccionistas
+                    this.client
+                        .channel('capswap-realtime')
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'capswap_sync' }, (payload) => {
+                            if (payload.new?.payload && typeof window.mergeCloudAccounts === 'function') {
+                                window.mergeCloudAccounts([payload.new.payload]);
+                            }
+                        })
+                        .subscribe();
+
+                    return true;
+                } catch (err) {
+                    console.warn('Modo local activo:', err);
+                    return false;
+                }
+            },
+
+            async saveAccountToCloud(accountObj) {
+                if (!this.enabled || !accountObj?.id) return;
+                try {
+                    const { error } = await this.client
+                        .from('capswap_sync')
+                        .upsert({
+                            id: accountObj.id,
+                            username: accountObj.profile?.username || accountObj.email,
+                            payload: accountObj,
+                            updated_at: new Date().toISOString()
+                        }, { onConflict: 'id' });
+
+                    if (error) {
+                        console.warn('Error guardando en Supabase:', error.message);
+                    }
+                } catch (e) {
+                    console.warn('Error de red al sincronizar con Supabase:', e);
+                }
+            }
+        };
+    </script>
+
+    <script>
+        const CAP_CATEGORIES = [
+            { id: 'cerveza', label: 'Cerveza' },
+            { id: 'coca-cola', label: 'Coca-Cola' },
+            { id: 'refresco', label: 'Refresco' },
+            { id: 'agua', label: 'Agua' },
+            { id: 'lacteo', label: 'Lácteo' },
+            { id: 'alcoholico', label: 'Alcohólico' },
+            { id: 'zumo', label: 'Zumo' },
+            { id: 'otro', label: 'Otro' }
+        ];
+
+        const COUNTRIES_LIST = [
+            'España', 'Alemania', 'Bélgica', 'Francia', 'Italia', 'Portugal', 'Reino Unido', 'Irlanda',
+            'Países Bajos', 'República Checa', 'Polonia', 'Austria', 'Suiza', 'Dinamarca', 'Suecia',
+            'Noruega', 'Finlandia', 'Grecia', 'Croacia', 'Hungría', 'Rumanía', 'Bulgaria', 'Ucrania',
+            'Rusia', 'Turquía', 'Estados Unidos', 'Canadá', 'México', 'Argentina', 'Brasil', 'Chile',
+            'Colombia', 'Perú', 'Uruguay', 'Venezuela', 'Cuba', 'República Dominicana', 'Costa Rica',
+            'Japón', 'China', 'Corea del Sur', 'Tailandia', 'Vietnam', 'India', 'Filipinas', 'Indonesia',
+            'Australia', 'Nueva Zelanda', 'Marruecos', 'Sudáfrica', 'Egipto', 'Kenia'
+        ];
+
+        const CAP_PRESETS = [
+            { id: 'red-gold', name: 'Roja & Oro', bg: '#b91c1c', ring: '#fbbf24', text: 'CROWN', sub: 'LAGER' },
+            { id: 'blue-silver', name: 'Azul & Plata', bg: '#1d4ed8', ring: '#e2e8f0', text: 'PILS', sub: 'EXPORT' },
+            { id: 'emerald-cream', name: 'Verde & Crema', bg: '#047857', ring: '#fef3c7', text: 'HOP', sub: 'CRAFT' },
+            { id: 'amber-dark', name: 'Ámbar & Negro', bg: '#d97706', ring: '#1e293b', text: 'IPA', sub: 'SPECIAL' },
+            { id: 'black-gold', name: 'Negra & Oro', bg: '#0f172a', ring: '#f59e0b', text: 'STOUT', sub: 'RESERVE' },
+            { id: 'white-red', name: 'Blanca & Roja', bg: '#f8fafc', ring: '#dc2626', text: 'SODA', sub: 'CLASSIC' }
+        ];
+
+        const DEFAULT_USER_PROFILE = {
+            name: '',
+            username: '@usuario',
+            email: '',
+            location: '',
+            bio: '',
+            avatarDataUrl: null
+        };
+
+        // Estado global
+        let appState = {
+            currentUserId: null,
+            accounts: [],
+            brandLogoDataUrl: null,
+            activeTab: 'my-collection',
+            tradesSubtab: 'active', // 'active' | 'completed'
+            expandedTradeIds: [],
+            myCategoryFilter: 'all',
+            userProfile: { ...DEFAULT_USER_PROFILE },
+            myCaps: [],
+            myWishlist: [],
+            collectors: [],
+            selectedCollectorId: null,
+            wantedCapIds: [],
+            trades: [],
+            respondingTradeId: null,
+            ratingTradeId: null,
+            claimingTradeId: null,
+            selectedRatingScore: 5,
+            newCapForm: {
+                photoDataUrl: null,
+                selectedPresetId: 'red-gold',
+                category: 'cerveza',
+                country: '',
+                batchPhotos: [],
+                isCropMode: false,
+                cropSubmode: 'manual',
+                loadedImage: null,
+                cropRects: [],
+                croppedDataUrls: []
+            },
+            newWishlistForm: {
+                photoDataUrl: null,
+                category: 'cerveza'
+            },
+            editingCapId: null,
+            editingCapCategory: 'otro',
+            zoomContext: {
+                source: 'my',
+                tradeId: null,
+                capIds: [],
+                currentIndex: 0
+            }
+        };
+
+        const STORAGE_KEY = 'capswap_prod_v1';
+
+        // =========================================================
+        // PWA: MANIFEST DINÁMICO, SERVICE WORKER E INSTALACIÓN
+        // =========================================================
+        let deferredPwaPrompt = null;
+
+        function setupPwaSupport() {
+            const manifest = {
+                name: 'CapSwap — Intercambio de Chapas',
+                short_name: 'CapSwap',
+                description: 'Colecciona, cataloga e intercambia chapas de botella con otros coleccionistas.',
+                start_url: '.',
+                display: 'standalone',
+                background_color: '#0f172a',
+                theme_color: '#0f172a',
+                icons: [
+                    {
+                        src: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="40" fill="#0f172a"/><circle cx="96" cy="96" r="64" fill="#d97706" stroke="#fef3c7" stroke-width="8" stroke-dasharray="12 6"/><text x="96" y="106" text-anchor="middle" fill="#ffffff" font-family="sans-serif" font-weight="bold" font-size="34">CAP</text></svg>'),
+                        sizes: '192x192',
+                        type: 'image/svg+xml'
+                    }
+                ]
+            };
+
+            const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+            const manifestUrl = URL.createObjectURL(manifestBlob);
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = manifestUrl;
+            document.head.appendChild(link);
+
+            if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+                const swCode = `
+                    self.addEventListener('install', (e) => self.skipWaiting());
+                    self.addEventListener('activate', (e) => self.clients.claim());
+                    self.addEventListener('fetch', (e) => {});
+                `;
+                const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+            }
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPwaPrompt = e;
+                const btn = document.getElementById('pwa-install-btn');
+                if (btn) {
+                    btn.classList.remove('hidden');
+                    btn.classList.add('inline-flex');
+                }
+            });
+        }
+
+        async function triggerPwaInstall() {
+            if (!deferredPwaPrompt) {
+                showToast('En móvil, abre el menú del navegador y pulsa "Añadir a pantalla de inicio".', 'info');
+                return;
+            }
+            deferredPwaPrompt.prompt();
+            const { outcome } = await deferredPwaPrompt.userChoice;
+            if (outcome === 'accepted') {
+                document.getElementById('pwa-install-btn')?.classList.add('hidden');
+            }
+            deferredPwaPrompt = null;
+        }
+
+        // =========================================================
+        // COMPRESIÓN AUTOMÁTICA DE IMÁGENES (MAX 600x600)
+        // =========================================================
+        function compressImageDataUrl(rawDataUrl, maxDim = 600, quality = 0.82) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+                    const w = Math.max(1, Math.round(img.width * scale));
+                    const h = Math.max(1, Math.round(img.height * scale));
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+                img.onerror = () => resolve(rawDataUrl);
+                img.src = rawDataUrl;
+            });
+        }
+
+        // =========================================================
+        // CÁLCULO DE REPUTACIÓN PÚBLICA (0 A 5 ★)
+        // =========================================================
+        function getAccountReputation(account) {
+            const trades = Array.isArray(account?.trades) ? account.trades : [];
+            const ratings = trades
+                .filter(t => t.status === 'completed' && typeof t.partnerRatingGiven === 'number')
+                .map(t => t.partnerRatingGiven);
+
+            if (ratings.length === 0) {
+                return { average: null, count: 0, label: 'Sin valoraciones' };
+            }
+            const sum = ratings.reduce((a, b) => a + b, 0);
+            const avg = (sum / ratings.length).toFixed(1);
+            return {
+                average: avg,
+                count: ratings.length,
+                label: `★ ${avg} (${ratings.length})`
+            };
+        }
+
+        window.mergeCloudAccounts = function(cloudAccounts) {
+            if (!Array.isArray(cloudAccounts) || cloudAccounts.length === 0) return;
+            cloudAccounts.forEach(cAcc => {
+                const localIdx = appState.accounts.findIndex(a => a.id === cAcc.id);
+                if (localIdx === -1) {
+                    appState.accounts.push(cAcc);
+                } else if (cAcc.id !== appState.currentUserId) {
+                    appState.accounts[localIdx] = cAcc;
+                }
+            });
+            if (appState.currentUserId) {
+                const activeAcc = appState.accounts.find(a => a.id === appState.currentUserId);
+                if (activeAcc) {
+                    const prevSelected = appState.selectedCollectorId;
+                    loadAccountIntoState(activeAcc);
+                    if (prevSelected && appState.collectors.some(c => c.id === prevSelected)) {
+                        appState.selectedCollectorId = prevSelected;
+                    }
+                    if (appState.activeTab === 'explore') {
+                        renderCollectorTabs();
+                        renderCollectorGallery();
+                    }
+                }
+            }
+        };
+
+        async function initApp() {
+            setupPwaSupport();
+
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    appState.accounts = Array.isArray(parsed.accounts) ? parsed.accounts : [];
+                    appState.currentUserId = parsed.currentUserId || null;
+                    appState.brandLogoDataUrl = parsed.brandLogoDataUrl || null;
+                }
+            } catch (e) {
+                appState.accounts = [];
+                appState.currentUserId = null;
+            }
+
+            if (window.CapSwapCloud) {
+                await window.CapSwapCloud.init();
+            }
+
+            renderBrandLogos();
+
+            const activeAccount = appState.accounts.find(a => a.id === appState.currentUserId);
+            if (!activeAccount) {
+                showAuthScreen();
+                return;
+            }
+
+            loadAccountIntoState(activeAccount);
+            showAuthenticatedApp();
+        }
+
+        function loadAccountIntoState(account) {
+            appState.currentUserId = account.id;
+            appState.userProfile = { ...DEFAULT_USER_PROFILE, ...(account.profile || {}) };
+            appState.myCaps = Array.isArray(account.myCaps) ? account.myCaps : [];
+            appState.myWishlist = Array.isArray(account.myWishlist) ? account.myWishlist : [];
+            appState.trades = Array.isArray(account.trades) ? account.trades : [];
+
+            // Otros coleccionistas reales registrados en la plataforma (excluyendo al usuario actual)
+            appState.collectors = appState.accounts
+                .filter(acc => acc.id !== account.id)
+                .map(acc => {
+                    const locParts = (acc.profile?.location || '').split(',').map(s => s.trim());
+                    const rep = getAccountReputation(acc);
+                    return {
+                        id: acc.id,
+                        username: acc.profile?.username || '@usuario',
+                        name: acc.profile?.name || 'Coleccionista',
+                        country: locParts[1] || locParts[0] || 'Sin ubicación',
+                        province: locParts[0] || '',
+                        lastActiveDaysAgo: 0,
+                        lastActiveLabel: 'Coleccionista registrado',
+                        reputation: rep,
+                        tradesCount: (acc.trades || []).filter(t => t.status === 'completed').length,
+                        caps: Array.isArray(acc.myCaps) ? acc.myCaps : [],
+                        wishlist: Array.isArray(acc.myWishlist) ? acc.myWishlist : []
+                    };
+                });
+
+            appState.selectedCollectorId = appState.collectors[0]?.id || null;
+            appState.wantedCapIds = [];
+        }
+<!-- ... existing code ... -->
+        function showAuthenticatedApp() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-shell').classList.remove('hidden');
+
+            renderHeaderProfile();
+            renderMyCollection();
+            renderWishlist();
+            renderCollectorTabs();
+            renderCollectorGallery();
+            renderTradePanel();
+            renderHistory();
+            renderProfileView();
+            updateBadges();
+            lucide.createIcons();
+        }
+<!-- ... existing code ... -->
+            const newAccount = {
+                id: 'usr-' + Date.now(),
+                email,
+                password,
+                profile: {
+                    name,
+                    username,
+                    email,
+                    location,
+                    bio: '',
+                    avatarDataUrl: null
+                },
+                myCaps: [],
+                myWishlist: [],
+                trades: []
+            };
+
+            appState.accounts.push(newAccount);
+            loadAccountIntoState(newAccount);
+            saveState();
+            showAuthenticatedApp();
+            showToast(`¡Bienvenido a CapSwap, ${username}!`, 'success');
+        }
+<!-- ... existing code ... -->
+        function saveState() {
+            try {
+                let updatedAccount = null;
+                if (appState.currentUserId) {
+                    const idx = appState.accounts.findIndex(a => a.id === appState.currentUserId);
+                    if (idx !== -1) {
+                        appState.accounts[idx].profile = { ...appState.userProfile };
+                        appState.accounts[idx].myCaps = appState.myCaps;
+                        appState.accounts[idx].myWishlist = appState.myWishlist;
+                        appState.accounts[idx].trades = appState.trades;
+                        updatedAccount = appState.accounts[idx];
+                    }
+                }
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    accounts: appState.accounts,
+                    currentUserId: appState.currentUserId,
+                    brandLogoDataUrl: appState.brandLogoDataUrl
+                }));
+                if (updatedAccount && window.CapSwapCloud) {
+                    window.CapSwapCloud.saveAccountToCloud(updatedAccount);
+                }
+            } catch (e) {
+                console.warn('No se pudo guardar en localStorage', e);
+            }
+            updateBadges();
+        }
+
+        function resetDemoData() {
+            localStorage.removeItem(STORAGE_KEY);
+            appState.wantedCapIds = [];
+            initApp();
+            showToast('Datos de ejemplo restaurados.', 'info');
+        }
+
+        function switchTab(tabName) {
+            appState.activeTab = tabName;
+            ['my-collection', 'wishlist', 'explore', 'history', 'profile'].forEach(view => {
+                const section = document.getElementById(`view-${view}`);
+                if (section) section.classList.toggle('hidden', view !== tabName);
+
+                const btn = document.getElementById(`tab-btn-${view}`);
+                if (btn) {
+                    if (view === tabName) {
+                        btn.classList.add('bg-white', 'text-slate-900', 'shadow-xs');
+                        btn.classList.remove('text-slate-600');
+                    } else {
+                        btn.classList.remove('bg-white', 'text-slate-900', 'shadow-xs');
+                        btn.classList.add('text-slate-600');
+                    }
+                }
+            });
+
+            const headerProfileBtn = document.getElementById('header-profile-btn');
+            if (headerProfileBtn) {
+                if (tabName === 'profile') {
+                    headerProfileBtn.classList.add('ring-2', 'ring-amber-500', 'bg-amber-100');
+                } else {
+                    headerProfileBtn.classList.remove('ring-2', 'ring-amber-500', 'bg-amber-100');
+                }
+            }
+
+            if (tabName === 'my-collection') renderMyCollection();
+            if (tabName === 'wishlist') renderWishlist();
+            if (tabName === 'explore') {
+                renderCollectorTabs();
+                renderCollectorGallery();
+                renderTradePanel();
+            }
+            if (tabName === 'history') renderHistory();
+            if (tabName === 'profile') renderProfileView();
+            lucide.createIcons();
+        }
+
+        function updateBadges() {
+            document.getElementById('badge-my-count').textContent = appState.myCaps.length;
+            const wishBadge = document.getElementById('badge-wishlist-count');
+            if (wishBadge) wishBadge.textContent = appState.myWishlist.length;
+            const activeTrades = appState.trades.filter(t => t.status !== 'completed').length;
+            const completedTrades = appState.trades.filter(t => t.status === 'completed').length;
+            document.getElementById('badge-trades-count').textContent = activeTrades;
+
+            const activeSubBadge = document.getElementById('subbadge-trades-active');
+            const completedSubBadge = document.getElementById('subbadge-trades-completed');
+            if (activeSubBadge) activeSubBadge.textContent = activeTrades;
+            if (completedSubBadge) completedSubBadge.textContent = completedTrades;
+        }
+<!-- ... existing code ... -->
+        // =========================================================
+        // VISTA 1: MI COLECCIÓN DE REPETIDAS
+        // =========================================================
+        function getCategoryLabel(catId) {
+            return CAP_CATEGORIES.find(c => c.id === catId)?.label || '';
+        }
+
+        function setMyCategoryFilter(catId) {
+            appState.myCategoryFilter = catId;
+            renderMyCollection();
+        }
+
+        function renderMyCategoryFilterBar() {
+            const bar = document.getElementById('my-category-filter-bar');
+            if (!bar) return;
+
+            const allBtn = `
+                <button type="button" onclick="setMyCategoryFilter('all')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors cursor-pointer ${appState.myCategoryFilter === 'all' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+                    Todas
+                </button>
+            `;
+            const catBtns = CAP_CATEGORIES.map(c => {
+                const active = appState.myCategoryFilter === c.id;
+                return `
+                    <button type="button" onclick="setMyCategoryFilter('${c.id}')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer ${active ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-amber-50 hover:text-amber-800'}">
+                        ${c.label}
+                    </button>
+                `;
+            }).join('');
+
+            bar.innerHTML = allBtn + catBtns;
+        }
+
+        function renderMyCollection() {
+            renderMyCategoryFilterBar();
+            const grid = document.getElementById('my-caps-grid');
+            const rawQuery = normalizeSearchText(document.getElementById('my-search-input')?.value);
+            const query = rawQuery.length >= 3 ? rawQuery : '';
+
+            const filtered = appState.myCaps.filter(cap => {
+                const matchCat = appState.myCategoryFilter === 'all' || cap.category === appState.myCategoryFilter;
+                if (!matchCat) return false;
+                if (!query) return true;
+                const catLabel = getCategoryLabel(cap.category);
+                const searchable = normalizeSearchText(`${cap.notes} ${cap.country || ''} ${catLabel}`);
+                return searchable.includes(query);
+            });
+
+            const totalUnits = appState.myCaps.reduce((sum, c) => sum + (parseInt(c.quantity) || 1), 0);
+            document.getElementById('my-visible-count').textContent = filtered.length;
+            document.getElementById('my-total-units').textContent = totalUnits;
+            updateBadges();
+
+            if (filtered.length === 0) {
+                const isCollectionEmpty = appState.myCaps.length === 0;
+                grid.innerHTML = `
+                    <div class="col-span-full bg-white rounded-2xl border border-dashed border-slate-300 p-10 text-center">
+                        <p class="text-sm font-semibold text-slate-700">${isCollectionEmpty ? 'Tu álbum de repetidas está vacío.' : 'No hay chapas que coincidan con tu búsqueda.'}</p>
+                        <p class="text-xs text-slate-500 mt-1">${isCollectionEmpty ? 'Sube tus primeras chapas repetidas para que otros coleccionistas puedan verlas.' : 'Prueba con otras palabras o cambia el filtro de categoría.'}</p>
+                        <button onclick="openAddModal()" class="mt-3 px-4 py-2 rounded-xl bg-amber-600 text-white text-xs font-bold hover:bg-amber-700 cursor-pointer">
+                            + Añadir chapa(s)
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(cap => {
+                const qty = parseInt(cap.quantity) || 1;
+                const catLabel = getCategoryLabel(cap.category);
+                return `
+                    <div class="group relative bg-white rounded-xl border border-slate-200 hover:border-amber-400 p-2 flex flex-col items-center text-center transition-all shadow-2xs">
+                        <span class="absolute top-1.5 left-1.5 z-10 px-1.5 py-0.5 rounded-md bg-slate-900/85 text-white text-[10px] font-bold">
+                            ×${qty}
+                        </span>
+                        <button type="button" onclick="deleteMyCap('${cap.id}')" title="Eliminar chapa" class="opacity-0 group-hover:opacity-100 absolute top-1.5 right-1.5 z-10 w-5 h-5 rounded-md bg-red-50 text-red-600 hover:bg-red-600 hover:text-white flex items-center justify-center transition-all cursor-pointer">
+                            <i data-lucide="trash-2" class="w-3 h-3"></i>
+                        </button>
+
+                        <div onclick="openZoomModal('${cap.id}', 'my')" class="w-16 h-16 my-1 flex items-center justify-center cursor-zoom-in">
+                            ${renderCapArtwork(cap, true)}
+                        </div>
+
+                        ${(catLabel || cap.country) ? `
+                            <div class="flex flex-wrap justify-center gap-1 mt-0.5 w-full">
+                                ${catLabel ? `<span class="px-1.5 py-0.2 rounded bg-amber-50 text-amber-800 border border-amber-200/80 text-[9px] font-bold truncate max-w-full">${catLabel}</span>` : ''}
+                                ${cap.country ? `<span class="px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 text-[9px] font-semibold truncate max-w-full">${cap.country}</span>` : ''}
+                            </div>
+                        ` : ''}
+
+                        <p onclick="openZoomModal('${cap.id}', 'my')" class="text-[11px] text-slate-600 hover:text-amber-700 leading-tight line-clamp-2 min-h-[26px] mt-1 cursor-pointer w-full">
+                            ${cap.notes || '<span class="text-slate-400 italic">Añadir nota...</span>'}
+                        </p>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+<!-- ... existing code ... -->
+        // =========================================================
+        // AUTOCOMPLETADO DE PAÍSES (A PARTIR DE 3 LETRAS)
+        // =========================================================
+        function handleCountryInput(inputId, dropdownId, batchIndex = null) {
+            const input = document.getElementById(inputId);
+            const dropdown = document.getElementById(dropdownId);
+            if (!input || !dropdown) return;
+
+            const rawVal = input.value;
+            if (batchIndex !== null && appState.newCapForm.batchPhotos[batchIndex]) {
+                appState.newCapForm.batchPhotos[batchIndex].country = rawVal;
+            }
+
+            const q = normalizeSearchText(rawVal);
+            if (q.length < 3) {
+                dropdown.classList.add('hidden');
+                dropdown.innerHTML = '';
+                return;
+            }
+
+            const matches = COUNTRIES_LIST.filter(c => normalizeSearchText(c).includes(q));
+            if (matches.length === 0) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+
+            dropdown.innerHTML = matches.map(country => `
+                <button type="button" onclick="selectCountrySuggestion('${inputId}', '${dropdownId}', '${country.replace(/'/g, "\\'")}', ${batchIndex})" class="w-full text-left px-3 py-1.5 text-xs hover:bg-amber-50 text-slate-700 hover:text-amber-900 font-medium flex items-center gap-1.5 cursor-pointer">
+                    <span>🌍</span>
+                    <span>${country}</span>
+                </button>
+            `).join('');
+            dropdown.classList.remove('hidden');
+        }
+
+        function selectCountrySuggestion(inputId, dropdownId, country, batchIndex = null) {
+            const input = document.getElementById(inputId);
+            const dropdown = document.getElementById(dropdownId);
+            if (input) input.value = country;
+            if (dropdown) dropdown.classList.add('hidden');
+            if (batchIndex !== null && appState.newCapForm.batchPhotos[batchIndex]) {
+                appState.newCapForm.batchPhotos[batchIndex].country = country;
+            }
+        }
+
+        function renderCategoryPills(containerId, selectedId, onSelectFnName) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = CAP_CATEGORIES.map(cat => {
+                const isSelected = selectedId === cat.id;
+                return `
+                    <button type="button" onclick="${onSelectFnName}('${cat.id}')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all cursor-pointer ${isSelected ? 'bg-amber-600 text-white border-amber-600 shadow-2xs' : 'bg-white text-slate-600 border-slate-200 hover:border-amber-400'}">
+                        ${cat.label}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectNewCapCategory(catId) {
+            appState.newCapForm.category = catId;
+            renderCategoryPills('new-cap-category-pills', catId, 'selectNewCapCategory');
+        }
+
+        function selectEditCapCategory(catId) {
+            appState.editingCapCategory = catId;
+            renderCategoryPills('edit-cap-category-pills', catId, 'selectEditCapCategory');
+        }
+
+        // =========================================================
+        // MODAL 1: AÑADIR CHAPAS Y TROCEAR FOTO DE GRUPO
+        // =========================================================
+        function openAddModal() {
+            appState.newCapForm = {
+                photoDataUrl: null,
+                selectedPresetId: 'red-gold',
+                category: 'cerveza',
+                country: '',
+                batchPhotos: [],
+                isCropMode: false,
+                cropSubmode: 'manual',
+                loadedImage: null,
+                cropRects: [],
+                croppedDataUrls: []
+            };
+            document.getElementById('cap-photo-input').value = '';
+            document.getElementById('cap-notes').value = '';
+            document.getElementById('new-cap-country-input').value = '';
+            document.getElementById('new-cap-country-suggestions').classList.add('hidden');
+            document.getElementById('new-cap-quantity').value = 1;
+            document.getElementById('single-upload-section').classList.remove('hidden');
+            document.getElementById('multi-cropper-section').classList.add('hidden');
+            document.getElementById('multi-photos-batch-section').classList.add('hidden');
+            document.getElementById('open-cropper-btn').classList.add('hidden');
+            document.getElementById('clear-photo-btn').classList.add('hidden');
+            document.getElementById('preset-selector-box').classList.add('hidden');
+            document.getElementById('single-cap-tags-box').classList.remove('hidden');
+            document.getElementById('single-cap-qty-box').classList.remove('hidden');
+            document.getElementById('single-cap-notes-box').classList.remove('hidden');
+
+            renderCategoryPills('new-cap-category-pills', appState.newCapForm.category, 'selectNewCapCategory');
+            updateNewCapPreview();
+            document.getElementById('add-cap-modal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+<!-- ... existing code ... -->
+        function handlePhotoUpload(event) {
+            const files = Array.from(event.target.files || []);
+            if (files.length === 0) return;
+
+            if (files.length === 1) {
+                const file = files[0];
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    const compressedUrl = await compressImageDataUrl(e.target.result, 700, 0.85);
+                    const img = new Image();
+                    img.onload = function() {
+                        appState.newCapForm.batchPhotos = [];
+                        appState.newCapForm.loadedImage = img;
+                        appState.newCapForm.photoDataUrl = compressedUrl;
+                        document.getElementById('multi-photos-batch-section').classList.add('hidden');
+                        document.getElementById('single-cap-tags-box').classList.remove('hidden');
+                        document.getElementById('single-cap-qty-box').classList.remove('hidden');
+                        document.getElementById('single-cap-notes-box').classList.remove('hidden');
+                        document.getElementById('open-cropper-btn').classList.remove('hidden');
+                        document.getElementById('clear-photo-btn').classList.remove('hidden');
+                        document.getElementById('preset-selector-box').classList.add('hidden');
+                        updateNewCapPreview();
+                    };
+                    img.src = compressedUrl;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                Promise.all(files.map(file => new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        const compressedUrl = await compressImageDataUrl(e.target.result, 600, 0.82);
+                        resolve({
+                            photoDataUrl: compressedUrl,
+                            category: 'cerveza',
+                            country: '',
+                            notes: '',
+                            quantity: 1
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                }))).then(items => {
+                    appState.newCapForm.batchPhotos = items;
+                    appState.newCapForm.photoDataUrl = null;
+                    appState.newCapForm.loadedImage = null;
+                    appState.newCapForm.isCropMode = false;
+
+                    document.getElementById('multi-cropper-section').classList.add('hidden');
+                    document.getElementById('single-upload-section').classList.remove('hidden');
+                    document.getElementById('open-cropper-btn').classList.add('hidden');
+                    document.getElementById('preset-selector-box').classList.add('hidden');
+                    document.getElementById('single-cap-tags-box').classList.add('hidden');
+                    document.getElementById('single-cap-qty-box').classList.add('hidden');
+                    document.getElementById('single-cap-notes-box').classList.add('hidden');
+                    document.getElementById('clear-photo-btn').classList.remove('hidden');
+                    document.getElementById('multi-photos-batch-section').classList.remove('hidden');
+
+                    renderBatchPhotosList();
+                    updateNewCapPreview();
+                });
+            }
+        }
+
+        function renderBatchPhotosList() {
+            const list = document.getElementById('multi-photos-batch-list');
+            const items = appState.newCapForm.batchPhotos;
+            document.getElementById('batch-photos-count').textContent = items.length;
+
+            list.innerHTML = items.map((item, idx) => `
+                <div class="flex items-start gap-3 bg-white p-2.5 rounded-xl border border-slate-200 shadow-2xs">
+                    <div class="relative w-14 h-14 rounded-lg overflow-hidden border border-slate-200 shrink-0 mt-0.5">
+                        <img src="${item.photoDataUrl}" class="w-full h-full object-cover">
+                        <span class="absolute top-0 left-0 bg-slate-900/80 text-white text-[9px] px-1.5 py-0.5 font-bold">#${idx + 1}</span>
+                    </div>
+                    <div class="flex-1 min-w-0 space-y-1.5">
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <select onchange="updateBatchPhotoField(${idx}, 'category', this.value)" class="px-2 py-1 rounded-lg border border-slate-300 text-[11px] font-semibold bg-slate-50">
+                                ${CAP_CATEGORIES.map(c => `<option value="${c.id}" ${item.category === c.id ? 'selected' : ''}>${c.label}</option>`).join('')}
+                            </select>
+                            <div class="relative">
+                                <input type="text" id="batch-country-${idx}" value="${(item.country || '').replace(/"/g, '&quot;')}" oninput="handleCountryInput('batch-country-${idx}', 'batch-country-sug-${idx}', ${idx})" placeholder="País (3 letras)" class="w-full px-2 py-1 rounded-lg border border-slate-300 text-[11px] focus:outline-none focus:border-amber-500">
+                                <div id="batch-country-sug-${idx}" class="hidden absolute z-30 left-0 right-0 mt-0.5 bg-white border border-slate-200 rounded-lg shadow-lg max-h-28 overflow-y-auto"></div>
+                            </div>
+                        </div>
+                        <input type="text" value="${item.notes.replace(/"/g, '&quot;')}" oninput="updateBatchPhotoField(${idx}, 'notes', this.value)" placeholder="Notas para esta chapa (marca, edición, detalle...)" class="w-full px-2.5 py-1 rounded-lg border border-slate-300 text-xs focus:outline-none focus:border-amber-500">
+                        <div class="flex items-center justify-between text-[11px] text-slate-500">
+                            <span>Unidades repetidas:</span>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="adjustBatchPhotoQty(${idx}, -1)" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 font-bold text-slate-700 cursor-pointer">-</button>
+                                <span class="w-6 text-center font-bold text-slate-800">${item.quantity}</span>
+                                <button type="button" onclick="adjustBatchPhotoQty(${idx}, 1)" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 font-bold text-slate-700 cursor-pointer">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="removeBatchPhoto(${idx})" title="Quitar foto" class="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 cursor-pointer">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+<!-- ... existing code ... -->
+        function clearUploadedPhoto() {
+            appState.newCapForm.photoDataUrl = null;
+            appState.newCapForm.loadedImage = null;
+            appState.newCapForm.batchPhotos = [];
+            document.getElementById('cap-photo-input').value = '';
+            document.getElementById('open-cropper-btn').classList.add('hidden');
+            document.getElementById('clear-photo-btn').classList.add('hidden');
+            document.getElementById('multi-photos-batch-section').classList.add('hidden');
+            document.getElementById('preset-selector-box').classList.add('hidden');
+            document.getElementById('single-cap-tags-box').classList.remove('hidden');
+            document.getElementById('single-cap-qty-box').classList.remove('hidden');
+            document.getElementById('single-cap-notes-box').classList.remove('hidden');
+            updateNewCapPreview();
+        }
+<!-- ... existing code ... -->
+        function handleAddCap(event) {
+            event.preventDefault();
+            const notes = document.getElementById('cap-notes').value.trim();
+            const country = document.getElementById('new-cap-country-input').value.trim();
+            const category = appState.newCapForm.category || 'otro';
+            const qty = Math.max(1, parseInt(document.getElementById('new-cap-quantity').value) || 1);
+
+            if (appState.newCapForm.batchPhotos.length > 0) {
+                const count = appState.newCapForm.batchPhotos.length;
+                [...appState.newCapForm.batchPhotos].reverse().forEach((item, i) => {
+                    appState.myCaps.unshift({
+                        id: 'my-' + Date.now() + '-' + i,
+                        category: item.category || 'otro',
+                        country: (item.country || '').trim(),
+                        notes: (item.notes || '').trim(),
+                        quantity: Math.max(1, parseInt(item.quantity) || 1),
+                        presetId: 'red-gold',
+                        photoDataUrl: item.photoDataUrl
+                    });
+                });
+                showToast(`¡${count} chapa(s) guardadas con sus etiquetas y notas!`, 'success');
+            } else if (appState.newCapForm.isCropMode && appState.newCapForm.croppedDataUrls.length > 0) {
+                appState.newCapForm.croppedDataUrls.forEach((dataUrl, i) => {
+                    appState.myCaps.unshift({
+                        id: 'my-' + Date.now() + '-' + i,
+                        category,
+                        country,
+                        notes: notes || `Chapa #${i + 1}`,
+                        quantity: 1,
+                        presetId: 'red-gold',
+                        photoDataUrl: dataUrl
+                    });
+                });
+                showToast(`¡${appState.newCapForm.croppedDataUrls.length} chapas guardadas por separado!`, 'success');
+            } else {
+                if (!appState.newCapForm.photoDataUrl) {
+                    showToast('Selecciona al menos una fotografía de la chapa antes de guardar.', 'error');
+                    return;
+                }
+                appState.myCaps.unshift({
+                    id: 'my-' + Date.now(),
+                    category,
+                    country,
+                    notes,
+                    quantity: qty,
+                    presetId: appState.newCapForm.selectedPresetId,
+                    photoDataUrl: appState.newCapForm.photoDataUrl
+                });
+                showToast('Chapa añadida a tus repetidas.', 'success');
+            }
+
+            closeAddModal();
+            saveState();
+            renderMyCollection();
+        }
+<!-- ... existing code ... -->
+            if (source === 'my') {
+                appState.editingCapId = cap.id;
+                appState.editingCapCategory = cap.category || 'otro';
+                document.getElementById('zoom-readonly-box').classList.add('hidden');
+                document.getElementById('zoom-editable-box').classList.remove('hidden');
+                renderCategoryPills('edit-cap-category-pills', appState.editingCapCategory, 'selectEditCapCategory');
+                document.getElementById('edit-cap-country-input').value = cap.country || '';
+                document.getElementById('edit-cap-country-suggestions').classList.add('hidden');
+                document.getElementById('edit-cap-notes-input').value = cap.notes || '';
+                document.getElementById('edit-cap-qty-input').value = parseInt(cap.quantity) || 1;
+            } else {
+                appState.editingCapId = null;
+                document.getElementById('zoom-editable-box').classList.add('hidden');
+                document.getElementById('zoom-readonly-box').classList.remove('hidden');
+                const catLabel = getCategoryLabel(cap.category);
+                const metaParts = [catLabel, cap.country].filter(Boolean);
+                const metaPrefix = metaParts.length > 0 ? `[${metaParts.join(' • ')}] ` : '';
+                document.getElementById('zoom-cap-notes').textContent = metaPrefix + (cap.notes || 'Sin notas adicionales');
+            }
+        }
+
+        function navigateZoom(step) {
+            const ctx = appState.zoomContext;
+            if (!ctx || !ctx.capIds || ctx.capIds.length <= 1) return;
+            const total = ctx.capIds.length;
+            const nextIdx = (ctx.currentIndex + step + total) % total;
+            openZoomModal(ctx.capIds[nextIdx], ctx.source, ctx.tradeId);
+        }
+
+        function saveEditedCap() {
+            const cap = appState.myCaps.find(c => c.id === appState.editingCapId);
+            if (!cap) return;
+
+            cap.category = appState.editingCapCategory || 'otro';
+            cap.country = document.getElementById('edit-cap-country-input').value.trim();
+            cap.notes = document.getElementById('edit-cap-notes-input').value.trim();
+            cap.quantity = Math.max(1, parseInt(document.getElementById('edit-cap-qty-input').value) || 1);
+
+            saveState();
+            renderMyCollection();
+            closeZoomModal();
+            showToast('Cambios guardados en tu chapa.', 'success');
+        }
+
+        function deleteCapFromZoom() {
+            if (!appState.editingCapId) return;
+            deleteMyCap(appState.editingCapId);
+            closeZoomModal();
+        }
+
+        function closeZoomModal() {
+            document.getElementById('zoom-cap-modal').classList.add('hidden');
+            appState.editingCapId = null;
+        }
+
+        // =========================================================
+        // VISTA 1B: LISTA DE DESEOS ("BUSCO")
+        // =========================================================
+        function openWishlistModal() {
+            appState.newWishlistForm = {
+                photoDataUrl: null,
+                category: 'cerveza'
+            };
+            document.getElementById('wishlist-photo-input').value = '';
+            document.getElementById('wishlist-country-input').value = '';
+            document.getElementById('wishlist-country-suggestions').classList.add('hidden');
+            document.getElementById('wishlist-notes-input').value = '';
+            document.getElementById('wishlist-photo-preview').innerHTML = `<i data-lucide="image" class="w-6 h-6 text-slate-300"></i>`;
+            renderCategoryPills('wishlist-category-pills', 'cerveza', 'selectWishlistCategory');
+            document.getElementById('wishlist-modal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeWishlistModal() {
+            document.getElementById('wishlist-modal').classList.add('hidden');
+        }
+
+        function selectWishlistCategory(catId) {
+            appState.newWishlistForm.category = catId;
+            renderCategoryPills('wishlist-category-pills', catId, 'selectWishlistCategory');
+        }
+
+        function handleWishlistPhotoUpload(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const compressed = await compressImageDataUrl(e.target.result, 500, 0.82);
+                appState.newWishlistForm.photoDataUrl = compressed;
+                document.getElementById('wishlist-photo-preview').innerHTML = `<img src="${compressed}" class="w-full h-full object-cover">`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleAddWishlistItem(event) {
+            event.preventDefault();
+            const notes = document.getElementById('wishlist-notes-input').value.trim();
+            if (!notes) return;
+            const country = document.getElementById('wishlist-country-input').value.trim();
+
+            appState.myWishlist.unshift({
+                id: 'wish-' + Date.now(),
+                category: appState.newWishlistForm.category || 'otro',
+                country,
+                notes,
+                photoDataUrl: appState.newWishlistForm.photoDataUrl
+            });
+
+            closeWishlistModal();
+            saveState();
+            renderWishlist();
+            showToast('Chapa añadida a tu lista de deseos.', 'success');
+        }
+
+        function deleteWishlistItem(wishId) {
+            appState.myWishlist = appState.myWishlist.filter(w => w.id !== wishId);
+            saveState();
+            renderWishlist();
+            showToast('Eliminada de tu lista de deseos.', 'info');
+        }
+
+        function renderWishlist() {
+            const grid = document.getElementById('my-wishlist-grid');
+            if (!grid) return;
+            updateBadges();
+
+            if (appState.myWishlist.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full bg-white rounded-2xl border border-dashed border-rose-200 p-10 text-center">
+                        <p class="text-sm font-semibold text-slate-700">Tu lista de deseos está vacía.</p>
+                        <p class="text-xs text-slate-500 mt-1">Añade las chapas que buscas para que otros coleccionistas las vean cuando exploren tu perfil.</p>
+                        <button onclick="openWishlistModal()" class="mt-3 px-4 py-2 rounded-xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 cursor-pointer">
+                            + Añadir mi primer deseo
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = appState.myWishlist.map(item => {
+                const catLabel = getCategoryLabel(item.category);
+                return `
+                    <div class="group relative bg-white rounded-xl border border-rose-200/80 hover:border-rose-400 p-3 flex flex-col items-center text-center shadow-2xs transition-all">
+                        <button type="button" onclick="deleteWishlistItem('${item.id}')" title="Quitar deseo" class="opacity-0 group-hover:opacity-100 absolute top-2 right-2 w-6 h-6 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center transition-all cursor-pointer">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+
+                        <div class="w-16 h-16 rounded-xl bg-rose-50/60 border border-rose-100 flex items-center justify-center overflow-hidden mb-2">
+                            ${item.photoDataUrl
+                                ? `<img src="${item.photoDataUrl}" alt="Deseo" class="w-full h-full object-cover">`
+                                : `<i data-lucide="heart" class="w-7 h-7 text-rose-400"></i>`}
+                        </div>
+
+                        <div class="flex flex-wrap justify-center gap-1 mb-1">
+                            ${catLabel ? `<span class="px-1.5 py-0.2 rounded bg-rose-50 text-rose-800 border border-rose-200 text-[9px] font-bold">${catLabel}</span>` : ''}
+                            ${item.country ? `<span class="px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 text-[9px] font-semibold">${item.country}</span>` : ''}
+                        </div>
+
+                        <p class="text-xs text-slate-700 font-medium line-clamp-2">${item.notes}</p>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function openPartnerWishlistModal(collectorId) {
+            const col = appState.collectors.find(c => c.id === collectorId);
+            if (!col) return;
+            document.getElementById('partner-wishlist-username').textContent = col.username;
+            const list = document.getElementById('partner-wishlist-list');
+            const items = col.wishlist || [];
+
+            if (items.length === 0) {
+                list.innerHTML = `<p class="col-span-full text-xs text-slate-500 text-center py-6">${col.username} aún no ha añadido chapas a su lista de deseos.</p>`;
+            } else {
+                list.innerHTML = items.map(item => `
+                    <div class="bg-slate-50 rounded-xl border border-slate-200 p-2.5 flex flex-col items-center text-center">
+                        <div class="w-14 h-14 rounded-lg bg-white border border-slate-200 flex items-center justify-center overflow-hidden mb-1.5">
+                            ${item.photoDataUrl
+                                ? `<img src="${item.photoDataUrl}" class="w-full h-full object-cover">`
+                                : `<i data-lucide="heart" class="w-5 h-5 text-rose-400"></i>`}
+                        </div>
+                        ${item.country ? `<span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-200/80 text-slate-700 mb-1">${item.country}</span>` : ''}
+                        <p class="text-[11px] text-slate-700 font-medium line-clamp-2">${item.notes}</p>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('partner-wishlist-modal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closePartnerWishlistModal() {
+            document.getElementById('partner-wishlist-modal').classList.add('hidden');
+        }
+<!-- ... existing code ... -->
+            document.getElementById('current-collector-name').textContent = col.username;
+            const repLabel = col.reputation?.label || 'Sin valoraciones';
+            const wishCount = (col.wishlist || []).length;
+            banner.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-slate-900 text-white font-bold text-xs flex items-center justify-center">
+                        ${getInitials(col.name)}
+                    </div>
+                    <div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="font-bold text-sm text-slate-900">${col.username}</span>
+                            <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[11px] font-bold">${repLabel}</span>
+                            <span class="text-xs text-slate-500">• ${col.province || col.country}</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-[11px] text-slate-500 mt-0.5">
+                            <span class="text-emerald-700 font-semibold">${col.lastActiveLabel}</span>
+                            <span>${col.tradesCount} trueques completados</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" onclick="openPartnerWishlistModal('${col.id}')" class="px-3 py-1 rounded-full bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-1 cursor-pointer">
+                        <i data-lucide="heart" class="w-3 h-3"></i>
+                        <span>Busca (${wishCount})</span>
+                    </button>
+                    <span class="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700">
+                        ${col.caps.length} repetidas disponibles
+                    </span>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+<!-- ... existing code ... -->
+            const totalUnits = appState.myCaps.reduce((acc, c) => acc + (parseInt(c.quantity) || 1), 0);
+            const completedTrades = appState.trades.filter(t => t.status === 'completed').length;
+            document.getElementById('profile-stat-models').textContent = appState.myCaps.length;
+            document.getElementById('profile-stat-units').textContent = totalUnits;
+            document.getElementById('profile-stat-trades').textContent = completedTrades;
+
+            const currentAcc = appState.accounts.find(a => a.id === appState.currentUserId);
+            const rep = getAccountReputation(currentAcc);
+            const repBadge = document.getElementById('profile-preview-reputation');
+            if (repBadge) {
+                repBadge.textContent = rep.average !== null
+                    ? `★ ${rep.average} / 5 (${rep.count} ${rep.count === 1 ? 'valoración' : 'valoraciones'})`
+                    : '★ Sin valoraciones aún';
+            }
+
+            updateProfileLivePreview();
+        }
+<!-- ... existing code ... -->
