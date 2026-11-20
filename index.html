@@ -1864,40 +1864,38 @@
             appState.newCapForm.cropRects = [];
             appState.newCapForm.croppedDataUrls = [];
             document.getElementById('multi-photos-batch-section').classList.add('hidden');
-        async function syncWithCloudNow(manualClick = false) {
-            const cloudAccounts = await window.CapSwapCloud.fetchAllAccounts();
-            if (cloudAccounts) {
-                mergeCloudAccounts(cloudAccounts);
-                const myAcc = appState.accounts.find(a => String(a.id) === String(appState.currentUserId));
-                if (myAcc) {
-                    await window.CapSwapCloud.saveAccountToCloud(myAcc);
+            document.getElementById('multi-cropper-workspace').classList.add('hidden');
+            document.getElementById('single-cap-tags-box').classList.remove('hidden');
+            document.getElementById('single-cap-qty-box').classList.remove('hidden');
+            document.getElementById('single-cap-notes-box').classList.remove('hidden');
+            document.getElementById('open-cropper-btn').classList.add('hidden');
+            document.getElementById('clear-photo-btn').classList.add('hidden');
+            updateNewCapPreview();
+        }
+
+        // =========================================================
+        // ESCÁNER DE CÁMARA CON GUÍA CIRCULAR
+        // =========================================================
+        let circularScannerStream = null;
+
+        async function openCircularScanner() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                document.getElementById('cap-camera-input').click();
+                return;
+            }
+            try {
+                circularScannerStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { ideal: 'environment' } },
+                    audio: false
+                });
+                const videoEl = document.getElementById('circular-scanner-video');
+                if (videoEl) {
+                    videoEl.srcObject = circularScannerStream;
                 }
-                if (appState.currentUserId) {
-                    updateTradesBadge();
-                    if (!document.getElementById('view-history').classList.contains('hidden')) {
-                        renderHistory();
-                    }
-                    if (!document.getElementById('view-explore').classList.contains('hidden')) {
-                        renderCollectorTabs();
-                        renderCollectorGallery();
-                    }
-                }
-                if (manualClick) {
-                    const othersCount = getCollectorsList().length;
-                    showToast(
-                        appState.lang === 'en'
-                            ? `Synced! ${othersCount} collector(s) found in cloud.`
-                            : `¡Sincronizado! ${othersCount} coleccionista(s) encontrados en la nube.`,
-                        'success'
-                    );
-                }
-            } else if (manualClick && window.CapSwapCloud.lastSyncError) {
-                showToast(
-                    appState.lang === 'en'
-                        ? `Cloud sync error (${window.CapSwapCloud.lastSyncError}). Check Supabase API key.`
-                        : `Error de sincronización (${window.CapSwapCloud.lastSyncError}). Revisa la clave de Supabase.`,
-                    'error'
-                );
+                document.getElementById('circular-scanner-modal').classList.remove('hidden');
+                if (window.lucide) lucide.createIcons();
+            } catch (err) {
+                document.getElementById('cap-camera-input').click();
             }
         }
 
