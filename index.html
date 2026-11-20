@@ -56,7 +56,7 @@
             <form id="login-form" onsubmit="handleLoginSubmit(event)" class="p-6 space-y-4">
                 <div>
                     <label id="lbl-login-ident" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Usuario o Correo Electrónico</label>
-                    <input type="text" id="login-identifier" required placeholder="@usuario o tu@email.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-amber-500">
+                    <input type="text" id="login-identifier" required autocapitalize="none" autocorrect="off" placeholder="@usuario o tu@email.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-amber-500">
                 </div>
                 <div>
                     <label id="lbl-login-pass" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Contraseña</label>
@@ -76,13 +76,13 @@
                     </div>
                     <div>
                         <label id="lbl-reg-user" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Nombre de usuario</label>
-                        <input type="text" id="reg-username" required placeholder="@LauraChapas" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-amber-500">
+                        <input type="text" id="reg-username" required autocapitalize="none" autocorrect="off" placeholder="@LauraChapas" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-amber-500">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label id="lbl-reg-email" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Correo electrónico</label>
-                        <input type="email" id="reg-email" required placeholder="tu@email.com" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-amber-500">
+                        <input type="email" id="reg-email" required autocapitalize="none" autocorrect="off" placeholder="tu@email.com" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-amber-500">
                     </div>
                     <div>
                         <label id="lbl-reg-location" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Ciudad / País</label>
@@ -163,7 +163,7 @@
                             <h2 id="title-history" class="font-display font-extrabold text-lg sm:text-xl text-slate-900">Intercambios</h2>
                             <p id="subtitle-history" class="text-xs text-slate-500">Gestiona tus solicitudes enviadas y recibidas, cambios en curso e historial.</p>
                         </div>
-                        <button type="button" onclick="syncWithCloudNow()" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1.5 cursor-pointer">
+                        <button type="button" onclick="syncWithCloudNow(true)" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1.5 cursor-pointer">
                             <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
                             <span id="btn-sync-trades">Actualizar</span>
                         </button>
@@ -250,7 +250,7 @@
                             <p id="subtitle-explore" class="text-xs text-slate-500">Busca un coleccionista registrado por usuario o ciudad para ver sus repetidas y proponer cambio.</p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <button type="button" onclick="syncWithCloudNow()" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer">
+                            <button type="button" onclick="syncWithCloudNow(true)" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer">
                                 <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
                                 <span>Actualizar</span>
                             </button>
@@ -889,15 +889,17 @@
         const SESSION_KEY = 'capswap_active_user_id';
 
         const CAP_CATEGORIES = [
-            { id: 'general', label: '-', labelEn: '-' },
-            { id: 'cerveza', label: 'Cerveza', labelEn: 'Beer' },
-            { id: 'cocacola', label: 'Coca-Cola', labelEn: 'Coca-Cola' },
-            { id: 'refresco', label: 'Refresco', labelEn: 'Soda' },
-            { id: 'agua', label: 'Agua', labelEn: 'Water' },
-            { id: 'lacteo', label: 'Lácteo', labelEn: 'Dairy' },
-            { id: 'alcoholico', label: 'Alcohólico', labelEn: 'Alcoholic' },
-            { id: 'zumo', label: 'Zumo', labelEn: 'Juice' },
-            { id: 'otro', label: 'Otro', labelEn: 'Other' }
+            { id: 'general', label: '-', labelEn: '-', badgeClass: 'bg-slate-200 text-slate-800 border-slate-300', pillActiveClass: 'bg-slate-600 text-white border-slate-700' },
+            { id: 'cerveza', label: 'Cerveza', labelEn: 'Beer', badgeClass: 'bg-yellow-300 text-yellow-950 border-yellow-400', pillActiveClass: 'bg-yellow-400 text-yellow-950 border-yellow-500' },
+            { id: 'cocacola', label: 'Coca-Cola', labelEn: 'Coca-Cola', badgeClass: 'bg-red-600 text-white border-red-700', pillActiveClass: 'bg-red-600 text-white border-red-700' },
+            { id: 'refresco', label: 'Refresco', labelEn: 'Soda', badgeClass: 'bg-orange-500 text-white border-orange-600', pillActiveClass: 'bg-orange-500 text-white border-orange-600' },
+            { id: 'agua', label: 'Agua', labelEn: 'Water', badgeClass: 'bg-sky-500 text-white border-sky-600', pillActiveClass: 'bg-sky-500 text-white border-sky-600' },
+            { id: 'lacteo', label: 'Lácteo', labelEn: 'Dairy', badgeClass: 'bg-pink-400 text-pink-950 border-pink-500', pillActiveClass: 'bg-pink-400 text-pink-950 border-pink-500' },
+            { id: 'alcoholico', label: 'Alcohólico', labelEn: 'Alcoholic', badgeClass: 'bg-amber-900 text-amber-50 border-amber-950', pillActiveClass: 'bg-amber-900 text-amber-50 border-amber-950' },
+            { id: 'sidra', label: 'Sidra', labelEn: 'Cider', badgeClass: 'bg-emerald-600 text-white border-emerald-700', pillActiveClass: 'bg-emerald-600 text-white border-emerald-700' },
+            { id: 'zumo', label: 'Zumo', labelEn: 'Juice', badgeClass: 'bg-purple-600 text-white border-purple-700', pillActiveClass: 'bg-purple-600 text-white border-purple-700' },
+            { id: 'vino', label: 'Vino', labelEn: 'Wine', badgeClass: 'bg-rose-900 text-rose-50 border-rose-950', pillActiveClass: 'bg-rose-900 text-rose-50 border-rose-950' },
+            { id: 'otro', label: 'Otro', labelEn: 'Other', badgeClass: 'bg-white text-slate-800 border-slate-300', pillActiveClass: 'bg-white text-slate-900 border-slate-500 ring-2 ring-slate-300' }
         ];
 
         const COUNTRIES_LIST = [
@@ -1108,10 +1110,20 @@
             return (I18N[appState.lang] && I18N[appState.lang][key]) || I18N.es[key] || key;
         }
 
+        function getCategoryMeta(catId) {
+            return CAP_CATEGORIES.find(c => c.id === catId) || CAP_CATEGORIES[0];
+        }
+
         function getCategoryLabel(catId) {
             const found = CAP_CATEGORIES.find(c => c.id === catId);
-            if (!found) return '';
+            if (!found) return '-';
             return appState.lang === 'en' ? found.labelEn : found.label;
+        }
+
+        function getCategoryBadgeHtml(catId) {
+            const meta = getCategoryMeta(catId);
+            const lbl = appState.lang === 'en' ? meta.labelEn : meta.label;
+            return `<span class="px-1.5 py-0.2 rounded border text-[9px] font-bold ${meta.badgeClass}">${lbl}</span>`;
         }
 
         function isRealCollectorAccount(acc) {
@@ -1134,6 +1146,36 @@
                 });
             }
             return clone;
+        }
+
+        function persistAccountsSafely(accountsList) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(accountsList));
+                return true;
+            } catch (e) {
+                try {
+                    const lightweight = accountsList.map(acc => {
+                        if (String(acc.id) === String(appState.currentUserId)) return acc;
+                        return {
+                            ...acc,
+                            myCaps: (acc.myCaps || []).map(c => ({
+                                ...c,
+                                photoDataUrl: c.photoDataUrl && c.photoDataUrl.length > 35000
+                                    ? c.photoDataUrl.slice(0, 35000)
+                                    : c.photoDataUrl
+                            }))
+                        };
+                    });
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(lightweight));
+                    return true;
+                } catch (e2) {
+                    try {
+                        const mineOnly = accountsList.filter(a => String(a.id) === String(appState.currentUserId));
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(mineOnly));
+                    } catch (e3) {}
+                    return false;
+                }
+            }
         }
 
         // =========================================================
@@ -1249,10 +1291,10 @@
                     }
                 }
             });
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState.accounts));
+            persistAccountsSafely(appState.accounts);
         }
 
-        async function syncWithCloudNow() {
+        async function syncWithCloudNow(manualFeedback = false) {
             const cloudAccounts = await window.CapSwapCloud.fetchAllAccounts();
             if (cloudAccounts) {
                 mergeCloudAccounts(cloudAccounts);
@@ -1266,6 +1308,14 @@
                         renderCollectorGallery();
                     }
                 }
+                if (manualFeedback) {
+                    showToast(
+                        appState.lang === 'en' ? 'Synced with cloud!' : '¡Sincronizado con la nube!',
+                        'success'
+                    );
+                }
+            } else if (manualFeedback && window.CapSwapCloud.lastSyncError) {
+                showToast(`Error Supabase: ${window.CapSwapCloud.lastSyncError}`, 'error');
             }
         }
 
@@ -1293,9 +1343,7 @@
                     window.CapSwapCloud.saveAccountToCloud(appState.accounts[idx]);
                 }
             }
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState.accounts));
-            } catch (e) {}
+            persistAccountsSafely(appState.accounts);
             updateTradesBadge();
         }
 
@@ -1305,7 +1353,9 @@
             appState.myCaps = Array.isArray(acc.myCaps) ? acc.myCaps : [];
             appState.myWishlist = Array.isArray(acc.myWishlist) ? acc.myWishlist : [];
             appState.trades = Array.isArray(acc.trades) ? acc.trades : [];
-            localStorage.setItem(SESSION_KEY, String(acc.id));
+            try {
+                localStorage.setItem(SESSION_KEY, String(acc.id));
+            } catch (e) {}
         }
 
         function switchAuthTab(tab) {
@@ -1329,86 +1379,104 @@
 
         async function handleLoginSubmit(event) {
             event.preventDefault();
+            const submitBtn = document.getElementById('btn-login-submit');
             const ident = document.getElementById('login-identifier').value.trim().toLowerCase();
-            const pass = document.getElementById('login-password').value;
+            const pass = document.getElementById('login-password').value.trim();
             const errEl = document.getElementById('login-error-msg');
             errEl.classList.add('hidden');
 
-            await syncWithCloudNow();
+            if (submitBtn) submitBtn.disabled = true;
+            try {
+                await syncWithCloudNow(false);
 
-            const normalizedUser = ident.startsWith('@') ? ident : '@' + ident;
-            const found = appState.accounts.find(a => {
-                const u = (a.profile?.username || '').toLowerCase();
-                const em = (a.profile?.email || '').toLowerCase();
-                return (u === ident || u === normalizedUser || em === ident) && a.password === pass;
-            });
+                const normalizedUser = ident.startsWith('@') ? ident : '@' + ident;
+                const found = appState.accounts.find(a => {
+                    const u = (a.profile?.username || '').trim().toLowerCase();
+                    const em = (a.profile?.email || '').trim().toLowerCase();
+                    const savedPass = String(a.password || '').trim();
+                    return (u === ident || u === normalizedUser || em === ident) && savedPass === pass;
+                });
 
-            if (!found) {
-                errEl.textContent = appState.lang === 'en'
-                    ? 'Invalid username/email or password.'
-                    : 'Usuario/correo o contraseña incorrectos.';
-                errEl.classList.remove('hidden');
-                return;
+                if (!found) {
+                    const cloudHint = window.CapSwapCloud.lastSyncError
+                        ? ` (${window.CapSwapCloud.lastSyncError})`
+                        : '';
+                    errEl.textContent = (appState.lang === 'en'
+                        ? 'Invalid username/email or password.'
+                        : 'Usuario/correo o contraseña incorrectos.') + cloudHint;
+                    errEl.classList.remove('hidden');
+                    return;
+                }
+
+                loadAccountIntoState(found);
+                window.CapSwapCloud.saveAccountToCloud(found);
+                showAuthenticatedApp();
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
             }
-
-            loadAccountIntoState(found);
-            window.CapSwapCloud.saveAccountToCloud(found);
-            showAuthenticatedApp();
         }
 
         async function handleRegisterSubmit(event) {
             event.preventDefault();
+            const submitBtn = document.getElementById('btn-reg-submit');
             const name = document.getElementById('reg-name').value.trim();
-            let username = document.getElementById('reg-username').value.trim();
+            let username = document.getElementById('reg-username').value.trim().replace(/\s+/g, '');
             if (!username.startsWith('@')) username = '@' + username;
             const email = document.getElementById('reg-email').value.trim().toLowerCase();
             const location = document.getElementById('reg-location').value.trim();
-            const password = document.getElementById('reg-password').value;
+            const password = document.getElementById('reg-password').value.trim();
             const errEl = document.getElementById('register-error-msg');
             errEl.classList.add('hidden');
 
-            await syncWithCloudNow();
+            if (submitBtn) submitBtn.disabled = true;
+            try {
+                await syncWithCloudNow(false);
 
-            const exists = appState.accounts.some(a =>
-                (a.profile?.username || '').toLowerCase() === username.toLowerCase() ||
-                (a.profile?.email || '').toLowerCase() === email
-            );
+                const exists = appState.accounts.some(a =>
+                    (a.profile?.username || '').trim().toLowerCase() === username.toLowerCase() ||
+                    (a.profile?.email || '').trim().toLowerCase() === email
+                );
 
-            if (exists) {
-                errEl.textContent = appState.lang === 'en'
-                    ? 'That username or email is already registered.'
-                    : 'Ese nombre de usuario o correo ya está registrado.';
-                errEl.classList.remove('hidden');
-                return;
+                if (exists) {
+                    errEl.textContent = appState.lang === 'en'
+                        ? 'That username or email is already registered.'
+                        : 'Ese nombre de usuario o correo ya está registrado.';
+                    errEl.classList.remove('hidden');
+                    return;
+                }
+
+                const newAccount = {
+                    id: 'usr-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+                    password,
+                    profile: {
+                        name,
+                        username,
+                        email,
+                        location,
+                        bio: '',
+                        postalAddress: '',
+                        avatarDataUrl: null
+                    },
+                    myCaps: [],
+                    myWishlist: [],
+                    trades: [],
+                    ratingsReceived: []
+                };
+
+                appState.accounts.push(newAccount);
+                loadAccountIntoState(newAccount);
+                saveState();
+                showAuthenticatedApp();
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
             }
-
-            const newAccount = {
-                id: 'usr-' + Date.now(),
-                password,
-                profile: {
-                    name,
-                    username,
-                    email,
-                    location,
-                    bio: '',
-                    postalAddress: '',
-                    avatarDataUrl: null
-                },
-                myCaps: [],
-                myWishlist: [],
-                trades: [],
-                ratingsReceived: []
-            };
-
-            appState.accounts.push(newAccount);
-            loadAccountIntoState(newAccount);
-            saveState();
-            showAuthenticatedApp();
         }
 
         function logoutUser() {
             appState.currentUserId = null;
-            localStorage.removeItem(SESSION_KEY);
+            try {
+                localStorage.removeItem(SESSION_KEY);
+            } catch (e) {}
             document.getElementById('app-shell').classList.add('hidden');
             document.getElementById('app-shell').classList.remove('flex');
             document.getElementById('auth-screen').classList.remove('hidden');
@@ -1459,12 +1527,12 @@
             } else if (tabId === 'wishlist') {
                 renderWishlist();
             } else if (tabId === 'explore') {
-                syncWithCloudNow();
+                syncWithCloudNow(false);
                 renderCollectorTabs();
                 renderCollectorGallery();
                 renderTradePanel();
             } else if (tabId === 'history') {
-                syncWithCloudNow();
+                syncWithCloudNow(false);
                 renderHistory();
             } else if (tabId === 'profile') {
                 renderProfileView();
@@ -1532,15 +1600,18 @@
             const bar = document.getElementById('my-caps-category-bar');
             if (!bar) return;
             const allBtn = `
-                <button type="button" onclick="setMyCategoryFilter('all')" class="px-3 py-1 rounded-full text-xs font-bold shrink-0 cursor-pointer ${appState.myCategoryFilter === 'all' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+                <button type="button" onclick="setMyCategoryFilter('all')" class="px-3 py-1 rounded-full text-xs font-bold shrink-0 cursor-pointer border ${appState.myCategoryFilter === 'all' ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'}">
                     ${t('allCategories')}
                 </button>
             `;
             const catBtns = CAP_CATEGORIES.map(c => {
                 const active = appState.myCategoryFilter === c.id;
                 const lbl = appState.lang === 'en' ? c.labelEn : c.label;
+                const btnStyle = active
+                    ? `${c.pillActiveClass} shadow-xs scale-105`
+                    : `${c.badgeClass} opacity-80 hover:opacity-100`;
                 return `
-                    <button type="button" onclick="setMyCategoryFilter('${c.id}')" class="px-3 py-1 rounded-full text-xs font-bold shrink-0 cursor-pointer ${active ? 'bg-amber-500 text-slate-950' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+                    <button type="button" onclick="setMyCategoryFilter('${c.id}')" class="px-3 py-1 rounded-full text-xs font-bold shrink-0 cursor-pointer border transition-all ${btnStyle}">
                         ${lbl}
                     </button>
                 `;
@@ -1587,7 +1658,6 @@
 
             grid.innerHTML = filtered.map(cap => {
                 const qty = parseInt(cap.quantity) || 1;
-                const catLabel = getCategoryLabel(cap.category);
                 return `
                     <div class="group relative bg-white rounded-xl border border-slate-200 hover:border-amber-400 p-2 flex flex-col items-center text-center transition-all shadow-2xs cap-card-hover">
                         <span class="absolute top-1.5 left-1.5 z-10 px-1.5 py-0.5 rounded-md bg-slate-900/85 text-white text-[10px] font-bold">
@@ -1599,19 +1669,24 @@
                             </span>
                         ` : ''}
 
+                        <button type="button" onclick="openZoomModal('my', '${cap.id}')" title="Editar chapa" class="absolute bottom-1.5 right-1.5 z-10 p-1.5 rounded-lg bg-slate-100 hover:bg-amber-500 text-slate-600 hover:text-slate-950 border border-slate-200 shadow-2xs transition-colors cursor-pointer">
+                            <i data-lucide="pencil" class="w-3 h-3"></i>
+                        </button>
+
                         <div onclick="openZoomModal('my', '${cap.id}')" class="w-16 h-16 sm:w-20 sm:h-20 my-1 flex items-center justify-center cursor-pointer">
                             ${renderCapArtwork(cap, false)}
                         </div>
 
                         <div class="flex flex-wrap justify-center gap-1 mt-1">
-                            ${catLabel ? `<span class="px-1.5 py-0.2 rounded bg-amber-50 text-amber-800 border border-amber-200 text-[9px] font-bold">${catLabel}</span>` : ''}
+                            ${getCategoryBadgeHtml(cap.category)}
                             ${cap.country ? `<span class="px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 text-[9px] font-semibold">${cap.country}</span>` : ''}
                         </div>
 
-                        <p class="text-[11px] text-slate-700 line-clamp-2 min-h-[28px] mt-1">${cap.notes || (appState.lang === 'en' ? 'Duplicate cap' : 'Chapa repetida')}</p>
+                        <p onclick="openZoomModal('my', '${cap.id}')" class="text-[11px] text-slate-700 line-clamp-2 min-h-[28px] mt-1 pr-4 cursor-pointer">${cap.notes || (appState.lang === 'en' ? 'Duplicate cap' : 'Chapa repetida')}</p>
                     </div>
                 `;
             }).join('');
+            if (window.lucide) lucide.createIcons();
         }
 
         function renderCategoryPills(containerId, selectedId, callbackName) {
@@ -1620,8 +1695,11 @@
             container.innerHTML = CAP_CATEGORIES.map(c => {
                 const active = c.id === selectedId;
                 const lbl = appState.lang === 'en' ? c.labelEn : c.label;
+                const styleCls = active
+                    ? `${c.pillActiveClass} ring-2 ring-offset-1 ring-slate-900/30`
+                    : `${c.badgeClass} opacity-75 hover:opacity-100`;
                 return `
-                    <button type="button" onclick="${callbackName}('${c.id}')" class="px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer ${active ? 'bg-amber-500 text-slate-950' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+                    <button type="button" onclick="${callbackName}('${c.id}')" class="px-2.5 py-1 rounded-lg text-xs font-bold border transition-all cursor-pointer ${styleCls}">
                         ${lbl}
                     </button>
                 `;
@@ -2365,7 +2443,6 @@
             }
 
             grid.innerHTML = appState.myWishlist.map(w => {
-                const catLabel = getCategoryLabel(w.category);
                 return `
                     <div class="relative bg-white rounded-2xl border border-slate-200 hover:border-rose-300 p-3 flex flex-col items-center text-center shadow-2xs transition-all">
                         <button type="button" onclick="openZoomModal('wish', '${w.id}')" title="Editar deseo" class="absolute top-2 left-2 p-1 rounded-lg bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 cursor-pointer">
@@ -2378,7 +2455,7 @@
                             ${renderCapArtwork(w, false)}
                         </div>
                         <div class="flex flex-wrap justify-center gap-1 mt-1">
-                            ${catLabel ? `<span class="px-1.5 py-0.2 rounded bg-rose-50 text-rose-800 border border-rose-200 text-[9px] font-bold">${catLabel}</span>` : ''}
+                            ${getCategoryBadgeHtml(w.category)}
                             ${w.country ? `<span class="px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 text-[9px] font-semibold">${w.country}</span>` : ''}
                         </div>
                         <p onclick="openZoomModal('wish', '${w.id}')" class="text-xs text-slate-700 line-clamp-2 mt-1 cursor-pointer">${w.notes || (appState.lang === 'en' ? 'Wanted cap' : 'Chapa buscada')}</p>
@@ -2493,7 +2570,6 @@
             grid.innerHTML = col.caps.map(cap => {
                 const capKey = String(cap.id);
                 const isSelected = appState.wantedCapIds.includes(capKey);
-                const catLabel = getCategoryLabel(cap.category);
                 return `
                     <div class="relative rounded-xl border-2 p-2 flex flex-col items-center text-center transition-all ${isSelected ? 'border-amber-500 bg-amber-50/70 shadow-sm' : 'border-slate-200 bg-white hover:border-amber-300'}">
                         <button type="button" onclick="openZoomModal('collector', '${capKey}')" class="absolute top-1.5 right-1.5 p-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 cursor-pointer" title="Zoom">
@@ -2506,7 +2582,7 @@
 
                         <div class="flex flex-wrap justify-center gap-1 mt-1">
                             ${cap.unopened ? `<span class="px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 text-[9px] font-bold">✨ ${t('unopenedBadge')}</span>` : ''}
-                            ${catLabel ? `<span class="px-1.5 py-0.2 rounded bg-amber-50 text-amber-800 border border-amber-200 text-[9px] font-bold">${catLabel}</span>` : ''}
+                            ${getCategoryBadgeHtml(cap.category)}
                             ${cap.country ? `<span class="px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 text-[9px] font-semibold">${cap.country}</span>` : ''}
                         </div>
 
@@ -3076,7 +3152,6 @@
                     </div>
                     <div class="space-y-2.5">
                         ${caps.map(c => {
-                            const catLabel = getCategoryLabel(c.category);
                             return `
                                 <div class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
                                     <div class="w-16 h-16 rounded-full overflow-hidden bg-white border border-slate-200 flex items-center justify-center shrink-0">
@@ -3088,7 +3163,7 @@
                                         <p class="text-xs sm:text-sm font-bold text-slate-900 line-clamp-2">${c.notes || 'Chapa'}</p>
                                         <div class="flex flex-wrap gap-1 mt-1">
                                             ${c.unopened ? `<span class="px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold">✨ ${t('unopenedBadge')}</span>` : ''}
-                                            ${catLabel ? `<span class="px-1.5 py-0.2 rounded bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold">${catLabel}</span>` : ''}
+                                            ${getCategoryBadgeHtml(c.category)}
                                             ${c.country ? `<span class="px-1.5 py-0.2 rounded bg-slate-200/70 text-slate-700 text-[10px] font-semibold">${c.country}</span>` : ''}
                                         </div>
                                     </div>
@@ -3660,7 +3735,7 @@
 
             const deletedId = String(appState.currentUserId);
             appState.accounts = appState.accounts.filter(a => String(a.id) !== deletedId);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState.accounts));
+            persistAccountsSafely(appState.accounts);
             await window.CapSwapCloud.deleteAccountFromCloud(deletedId);
 
             closeDeleteAccountModal();
@@ -3673,7 +3748,9 @@
         // =========================================================
         function setAppLanguage(lang) {
             appState.lang = lang === 'en' ? 'en' : 'es';
-            localStorage.setItem('capswap_lang', appState.lang);
+            try {
+                localStorage.setItem('capswap_lang', appState.lang);
+            } catch (e) {}
 
             const esBtn = document.getElementById('lang-btn-es');
             const enBtn = document.getElementById('lang-btn-en');
@@ -3778,9 +3855,13 @@
             setAppLanguage(appState.lang);
             if (window.lucide) lucide.createIcons();
 
-            await syncWithCloudNow();
+            await syncWithCloudNow(false);
 
-            const savedUserId = localStorage.getItem(SESSION_KEY);
+            let savedUserId = null;
+            try {
+                savedUserId = localStorage.getItem(SESSION_KEY);
+            } catch (e) {}
+
             if (savedUserId) {
                 const found = appState.accounts.find(a => String(a.id) === String(savedUserId));
                 if (found) {
@@ -3790,7 +3871,7 @@
             }
 
             setInterval(() => {
-                if (appState.currentUserId) syncWithCloudNow();
+                if (appState.currentUserId) syncWithCloudNow(false);
             }, 8000);
         });
     </script>
