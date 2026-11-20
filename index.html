@@ -283,31 +283,31 @@
 
             <!-- ===================================================== -->
             <!-- VISTA 4: INTERCAMBIOS (PETICIONES, PROCESO, HISTORIAL)-->
-            <!-- ===================================================== -->
-            <section id="view-history" class="hidden space-y-4">
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
-                    <div>
-                        <h2 id="title-history" class="font-display font-extrabold text-lg sm:text-xl text-slate-900">Intercambios</h2>
-                        <p id="subtitle-history" class="text-xs text-slate-500">Gestiona tus peticiones enviadas y recibidas, envíos en curso e historial.</p>
-                    </div>
-
-                    <!-- 4 pestañas de filtro -->
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-slate-100 p-1 rounded-xl">
+                    <!-- 3 pestañas principales de filtro + subfiltro en Solicitudes -->
+                    <div class="grid grid-cols-3 gap-1.5 bg-slate-100 p-1 rounded-xl">
                         <button type="button" id="trades-subtab-requests" onclick="switchTradesSubtab('requests')" class="py-2 px-2 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer">
-                            <span id="trades-subtab-requests-lbl">Peticiones</span>
+                            <span id="trades-subtab-requests-lbl">Solicitudes</span>
                             <span id="trades-subtab-requests-count" class="px-1.5 py-0.2 rounded-full bg-amber-500 text-slate-950 text-[10px] font-extrabold">0</span>
                         </button>
                         <button type="button" id="trades-subtab-inprogress" onclick="switchTradesSubtab('inprogress')" class="py-2 px-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 cursor-pointer">
-                            <span id="trades-subtab-inprogress-lbl">En proceso</span>
+                            <span id="trades-subtab-inprogress-lbl">Intercambiando</span>
                             <span id="trades-subtab-inprogress-count" class="px-1.5 py-0.2 rounded-full bg-slate-200 text-slate-700 text-[10px] font-extrabold">0</span>
                         </button>
                         <button type="button" id="trades-subtab-completed" onclick="switchTradesSubtab('completed')" class="py-2 px-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 cursor-pointer">
-                            <span id="trades-subtab-completed-lbl">Finalizados</span>
+                            <span id="trades-subtab-completed-lbl">Finalizado</span>
                             <span id="trades-subtab-completed-count" class="px-1.5 py-0.2 rounded-full bg-slate-200 text-slate-700 text-[10px] font-extrabold">0</span>
                         </button>
-                        <button type="button" id="trades-subtab-cancelled" onclick="switchTradesSubtab('cancelled')" class="py-2 px-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 cursor-pointer">
-                            <span id="trades-subtab-cancelled-lbl">Cancelados</span>
-                            <span id="trades-subtab-cancelled-count" class="px-1.5 py-0.2 rounded-full bg-slate-200 text-slate-700 text-[10px] font-extrabold">0</span>
+                    </div>
+
+                    <!-- Subfiltro dentro de Solicitudes: Recibidas / Enviadas -->
+                    <div id="requests-direction-bar" class="flex items-center gap-2 pt-0.5">
+                        <button type="button" id="req-dir-received" onclick="switchRequestsDirection('received')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-2xs flex items-center gap-1.5 cursor-pointer">
+                            <span id="req-dir-received-lbl">Recibidas</span>
+                            <span id="req-dir-received-count" class="px-1.5 py-0.2 rounded-full bg-white/20 text-white text-[10px] font-extrabold">0</span>
+                        </button>
+                        <button type="button" id="req-dir-sent" onclick="switchRequestsDirection('sent')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 flex items-center gap-1.5 cursor-pointer">
+                            <span id="req-dir-sent-lbl">Enviadas</span>
+                            <span id="req-dir-sent-count" class="px-1.5 py-0.2 rounded-full bg-slate-200 text-slate-700 text-[10px] font-extrabold">0</span>
                         </button>
                     </div>
                 </div>
@@ -910,28 +910,71 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmYmh1cGZqcXl2amxsamZqeGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTY0MzEsImV4cCI6MjA5MTI5MjQzMX0.rR37H7d8Z37a9J6W6P2d3J1xG5-q9N1sM2h8v-K8X9I';
 
         const STORAGE_KEY = 'capswap_accounts_v2';
-        const LEGACY_STORAGE_KEYS = ['capswap_accounts_v1', 'capswap_accounts'];
+        const LEGACY_STORAGE_KEYS = ['capswap_accounts_v1', 'capswap_accounts', 'capswap_users'];
         const SESSION_KEY = 'capswap_active_user_id';
 
-        const DEFAULT_USER_PROFILE = {
-            name: '',
-            username: '@usuario',
-            email: '',
-            location: '',
-            bio: '',
-            postalAddress: '',
-            avatarDataUrl: null
-        };
-
-        const CAP_CATEGORIES = [
-            { id: 'cerveza', label: 'Cerveza', labelEn: 'Beer' },
-            { id: 'cocacola', label: 'Coca-Cola', labelEn: 'Coca-Cola' },
-            { id: 'refresco', label: 'Refresco', labelEn: 'Soda' },
-            { id: 'agua', label: 'Agua', labelEn: 'Water' },
-            { id: 'lacteo', label: 'Lácteo', labelEn: 'Dairy' },
-            { id: 'alcoholico', label: 'Alcohólico', labelEn: 'Alcoholic' },
-            { id: 'zumo', label: 'Zumo', labelEn: 'Juice' },
-            { id: 'otro', label: 'Otro', labelEn: 'Other' }
+        const SEED_COLLECTORS = [
+            {
+                id: 'col-carlos-mad',
+                password: 'demo',
+                profile: {
+                    name: 'Carlos Mendoza',
+                    username: '@CarlosBrew',
+                    email: 'carlos@capswap.demo',
+                    location: 'Madrid, España',
+                    bio: 'Coleccionista de cervezas artesanas e internacionales (+1.800 chapas).'
+                },
+                myCaps: [
+                    { id: 'c-car-1', category: 'cerveza', country: 'España', unopened: true, notes: 'Mahou Cinco Estrellas Edición Clásica', quantity: 3, presetId: 'red-gold', photoDataUrl: null },
+                    { id: 'c-car-2', category: 'cerveza', country: 'Bélgica', unopened: false, notes: 'Leffe Blonde Abadía', quantity: 2, presetId: 'amber-dark', photoDataUrl: null },
+                    { id: 'c-car-3', category: 'cerveza', country: 'Alemania', unopened: true, notes: 'Paulaner München Oktoberfest', quantity: 2, presetId: 'navy-gold', photoDataUrl: null }
+                ],
+                myWishlist: [
+                    { id: 'w-car-1', category: 'cerveza', country: 'Japón', notes: 'Asahi Super Dry o Kirin Ichiban', presetId: 'emerald-silver', photoDataUrl: null }
+                ],
+                trades: [],
+                ratingsReceived: [{ from: '@AnaCaps', score: 5, comment: 'Envío muy rápido y bien protegido.' }]
+            },
+            {
+                id: 'col-ana-bcn',
+                password: 'demo',
+                profile: {
+                    name: 'Ana Beltrán',
+                    username: '@AnaCaps',
+                    email: 'ana@capswap.demo',
+                    location: 'Barcelona, España',
+                    bio: 'Busco chapas de refrescos retro, Coca-Cola y ediciones limitadas.'
+                },
+                myCaps: [
+                    { id: 'c-ana-1', category: 'cocacola', country: 'España', unopened: true, notes: 'Coca-Cola Edición Especial Verano', quantity: 4, presetId: 'red-gold', photoDataUrl: null },
+                    { id: 'c-ana-2', category: 'refresco', country: 'Italia', unopened: false, notes: 'Chinotto Sanpellegrino Vintage', quantity: 2, presetId: 'emerald-silver', photoDataUrl: null },
+                    { id: 'c-ana-3', category: 'cerveza', country: 'España', unopened: true, notes: 'Estrella Damm Mediterráneamente', quantity: 3, presetId: 'amber-dark', photoDataUrl: null }
+                ],
+                myWishlist: [
+                    { id: 'w-ana-1', category: 'cocacola', country: 'Estados Unidos', notes: 'Coca-Cola Cherry o Vanilla', presetId: 'red-gold', photoDataUrl: null }
+                ],
+                trades: [],
+                ratingsReceived: [{ from: '@CarlosBrew', score: 5, comment: 'Trato excelente.' }]
+            },
+            {
+                id: 'col-javi-val',
+                password: 'demo',
+                profile: {
+                    name: 'Javier Soler',
+                    username: '@JaviCrown',
+                    email: 'javi@capswap.demo',
+                    location: 'Valencia, España',
+                    bio: 'Intercambio chapas de toda Europa, especialmente República Checa y Alemania.'
+                },
+                myCaps: [
+                    { id: 'c-jav-1', category: 'cerveza', country: 'República Checa', unopened: true, notes: 'Pilsner Urquell Plzeň', quantity: 2, presetId: 'emerald-silver', photoDataUrl: null },
+                    { id: 'c-jav-2', category: 'cerveza', country: 'Irlanda', unopened: false, notes: 'Guinness Draught Harp', quantity: 2, presetId: 'amber-dark', photoDataUrl: null },
+                    { id: 'c-jav-3', category: 'zumo', country: 'España', unopened: true, notes: 'Pago Melocotón Botella Cristal', quantity: 1, presetId: 'navy-gold', photoDataUrl: null }
+                ],
+                myWishlist: [],
+                trades: [],
+                ratingsReceived: []
+            }
         ];
 
         const CAP_PRESETS = [
@@ -947,6 +990,27 @@
             'Austria', 'Suiza', 'Dinamarca', 'Suecia', 'Noruega', 'Finlandia',
             'Estados Unidos', 'México', 'Brasil', 'Argentina', 'Chile', 'Colombia',
             'Japón', 'China', 'Corea del Sur', 'Australia', 'Canadá', 'Rusia', 'Grecia'
+        ];
+
+        const DEFAULT_USER_PROFILE = {
+            name: '',
+            username: '',
+            email: '',
+            location: '',
+            bio: '',
+            postalAddress: '',
+            avatarDataUrl: null
+        };
+
+        const CAP_CATEGORIES = [
+            { id: 'cerveza', label: 'Cerveza', labelEn: 'Beer' },
+            { id: 'cocacola', label: 'Coca-Cola', labelEn: 'Coca-Cola' },
+            { id: 'refresco', label: 'Refresco', labelEn: 'Soda' },
+            { id: 'agua', label: 'Agua', labelEn: 'Water' },
+            { id: 'lacteo', label: 'Lácteo', labelEn: 'Dairy' },
+            { id: 'alcohol', label: 'Alcohólico', labelEn: 'Alcoholic' },
+            { id: 'zumo', label: 'Zumo', labelEn: 'Juice' },
+            { id: 'otro', label: 'Otro', labelEn: 'Other' }
         ];
 
         const I18N = {
@@ -965,11 +1029,12 @@
                 showAllCollectors: 'Ver todos',
                 hideAllCollectors: 'Ocultar lista',
                 historyTitle: 'Intercambios',
-                historySubtitle: 'Gestiona tus peticiones enviadas y recibidas, envíos en curso e historial.',
-                tabRequests: 'Peticiones',
-                tabInProgress: 'En proceso',
-                tabCompleted: 'Finalizados',
-                tabCancelled: 'Cancelados',
+                historySubtitle: 'Gestiona tus solicitudes enviadas y recibidas, envíos en curso e historial.',
+                tabRequests: 'Solicitudes',
+                tabInProgress: 'Intercambiando',
+                tabCompleted: 'Finalizado',
+                reqReceived: 'Recibidas',
+                reqSent: 'Enviadas',
                 capsYouRequestTitle: 'Chapas que pides de su galería',
                 sendTradeBtn: 'Enviar Petición de Cambio',
                 noRatingsYet: 'Sin valoraciones',
@@ -1032,9 +1097,10 @@
                 historyTitle: 'Swaps',
                 historySubtitle: 'Manage sent and received requests, active shipments, and history.',
                 tabRequests: 'Requests',
-                tabInProgress: 'In Progress',
+                tabInProgress: 'Swapping',
                 tabCompleted: 'Completed',
-                tabCancelled: 'Cancelled',
+                reqReceived: 'Received',
+                reqSent: 'Sent',
                 capsYouRequestTitle: 'Caps you request from their gallery',
                 sendTradeBtn: 'Send Swap Request',
                 noRatingsYet: 'No ratings yet',
@@ -1091,10 +1157,11 @@
             myWishlist: [],
             trades: [],
             myCategoryFilter: 'all',
-            showAllCollectors: false,
+            showAllCollectors: true,
             selectedCollectorId: null,
             wantedCapIds: [],
             tradesSubtab: 'requests',
+            requestsDirection: 'received',
             expandedTradeId: null,
             lastActionableTradesCount: 0,
             zoomContext: null,
@@ -1139,41 +1206,58 @@
         // =========================================================
         // SINCRONIZACIÓN CON SUPABASE (REST API SEGURA)
         // =========================================================
+        function normalizeCloudRowToAccount(r) {
+            if (!r || typeof r !== 'object') return null;
+            let raw = r.payload || r.data || r.account_data || r;
+            if (typeof raw === 'string') {
+                try { raw = JSON.parse(raw); } catch (e) { return null; }
+            }
+            if (!raw || typeof raw !== 'object') return null;
+
+            const id = raw.id || r.account_id || r.user_id || r.id;
+            const profileObj = raw.profile || {
+                name: raw.name || r.name || '',
+                username: raw.username || r.username || '',
+                email: raw.email || r.email || '',
+                location: raw.location || r.location || '',
+                bio: raw.bio || r.bio || '',
+                postalAddress: raw.postalAddress || '',
+                avatarDataUrl: raw.avatarDataUrl || r.avatarDataUrl || null
+            };
+            if (!id || (!profileObj.username && !profileObj.name && !profileObj.email)) return null;
+
+            return {
+                ...raw,
+                id: String(id),
+                profile: { ...DEFAULT_USER_PROFILE, ...profileObj },
+                myCaps: Array.isArray(raw.myCaps) ? raw.myCaps : (Array.isArray(raw.caps) ? raw.caps : []),
+                myWishlist: Array.isArray(raw.myWishlist) ? raw.myWishlist : (Array.isArray(raw.wishlist) ? raw.wishlist : []),
+                trades: Array.isArray(raw.trades) ? raw.trades : [],
+                ratingsReceived: Array.isArray(raw.ratingsReceived) ? raw.ratingsReceived : []
+            };
+        }
+
         window.CapSwapCloud = {
             async fetchAllAccounts() {
                 const headers = {
                     'apikey': SUPABASE_ANON_KEY,
                     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                 };
-                try {
-                    // Intentar lectura desde capswap_sync (formato payload o columnas directas)
-                    const res = await fetch(`${SUPABASE_URL}/rest/v1/capswap_sync?select=*`, { headers });
-                    if (res.ok) {
-                        const rows = await res.json();
-                        if (Array.isArray(rows) && rows.length > 0) {
-                            return rows.map(r => {
-                                if (r && r.payload && typeof r.payload === 'object') {
-                                    return { ...r.payload, id: r.payload.id || r.account_id };
-                                }
-                                if (r && (r.account_id || r.id)) {
-                                    return { ...r, id: r.id || r.account_id };
-                                }
-                                return null;
-                            }).filter(Boolean);
+                const tables = ['capswap_sync', 'capswap_accounts', 'accounts'];
+                let collected = [];
+                for (const table of tables) {
+                    try {
+                        const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=*`, { headers });
+                        if (res.ok) {
+                            const rows = await res.json();
+                            if (Array.isArray(rows) && rows.length > 0) {
+                                const parsed = rows.map(normalizeCloudRowToAccount).filter(Boolean);
+                                collected = collected.concat(parsed);
+                            }
                         }
-                    }
-                    // Respaldo: intentar tabla capswap_accounts si existiera
-                    const resAlt = await fetch(`${SUPABASE_URL}/rest/v1/capswap_accounts?select=*`, { headers });
-                    if (resAlt.ok) {
-                        const rowsAlt = await resAlt.json();
-                        if (Array.isArray(rowsAlt)) {
-                            return rowsAlt.map(r => (r && r.payload ? { ...r.payload, id: r.payload.id || r.id } : r)).filter(Boolean);
-                        }
-                    }
-                    return null;
-                } catch (e) {
-                    return null;
+                    } catch (e) {}
                 }
+                return collected.length > 0 ? collected : null;
             },
             async saveAccountToCloud(accountObj) {
                 if (!accountObj || !accountObj.id) return;
@@ -1280,6 +1364,18 @@
         // =========================================================
         // PERSISTENCIA LOCAL Y GESTIÓN DE CUENTAS
         // =========================================================
+        function ensureSeedCollectorsPresent() {
+            SEED_COLLECTORS.forEach(seed => {
+                const exists = appState.accounts.some(a =>
+                    String(a.id) === String(seed.id) ||
+                    (a.profile?.username || '').toLowerCase() === seed.profile.username.toLowerCase()
+                );
+                if (!exists) {
+                    appState.accounts.push(JSON.parse(JSON.stringify(seed)));
+                }
+            });
+        }
+
         function loadAccountsFromStorage() {
             try {
                 const raw = localStorage.getItem(STORAGE_KEY);
@@ -1293,8 +1389,9 @@
                     const oldList = JSON.parse(oldRaw);
                     if (Array.isArray(oldList)) {
                         oldList.forEach(oldAcc => {
-                            if (oldAcc && oldAcc.id && !appState.accounts.some(a => String(a.id) === String(oldAcc.id))) {
-                                appState.accounts.push(oldAcc);
+                            const norm = normalizeCloudRowToAccount(oldAcc);
+                            if (norm && !appState.accounts.some(a => String(a.id) === String(norm.id))) {
+                                appState.accounts.push(norm);
                             }
                         });
                     }
@@ -1302,6 +1399,7 @@
             } catch (e) {
                 appState.accounts = [];
             }
+            ensureSeedCollectorsPresent();
         }
 
         function saveState() {
@@ -1442,7 +1540,7 @@
 
             renderHeaderProfile();
             setAppLanguage(appState.lang);
-            switchTab('my-caps');
+            switchTab('history');
             if (window.lucide) lucide.createIcons();
         }
 
@@ -2562,6 +2660,7 @@
 
             const myTrade = {
                 id: tradeId,
+                direction: 'sent',
                 partnerId: String(col.id),
                 partnerUsername: col.username,
                 wantedCaps,
@@ -2589,6 +2688,7 @@
                 if (!Array.isArray(partnerAccount.trades)) partnerAccount.trades = [];
                 partnerAccount.trades.unshift({
                     id: tradeId,
+                    direction: 'received',
                     partnerId: String(appState.currentUserId),
                     partnerUsername: appState.userProfile.username,
                     wantedCaps: [],
@@ -2616,15 +2716,47 @@
                     : `¡Petición de intercambio enviada a ${col.username}!`,
                 'success'
             );
+            appState.tradesSubtab = 'requests';
+            appState.requestsDirection = 'sent';
             switchTab('history');
+            switchRequestsDirection('sent');
         }
 
         // =========================================================
-        // GESTIÓN DE INTERCAMBIOS (4 PESTAÑAS, CHAT, COMPARADOR, RESUMEN)
+        // GESTIÓN DE INTERCAMBIOS (SOLICITUDES, INTERCAMBIANDO, FINALIZADO)
         // =========================================================
+        function isTradeSentByMe(trade) {
+            if (trade.direction === 'sent') return true;
+            if (trade.direction === 'received') return false;
+            return trade.status === 'waiting_partner_selection';
+        }
+
+        function switchRequestsDirection(dir) {
+            appState.requestsDirection = dir === 'sent' ? 'sent' : 'received';
+            const recBtn = document.getElementById('req-dir-received');
+            const sentBtn = document.getElementById('req-dir-sent');
+            const recBadge = document.getElementById('req-dir-received-count');
+            const sentBadge = document.getElementById('req-dir-sent-count');
+
+            if (recBtn && sentBtn) {
+                if (appState.requestsDirection === 'received') {
+                    recBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-2xs flex items-center gap-1.5 cursor-pointer';
+                    if (recBadge) recBadge.className = 'px-1.5 py-0.2 rounded-full bg-white/20 text-white text-[10px] font-extrabold';
+                    sentBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 flex items-center gap-1.5 cursor-pointer';
+                    if (sentBadge) sentBadge.className = 'px-1.5 py-0.2 rounded-full bg-slate-200 text-slate-700 text-[10px] font-extrabold';
+                } else {
+                    sentBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 shadow-2xs flex items-center gap-1.5 cursor-pointer';
+                    if (sentBadge) sentBadge.className = 'px-1.5 py-0.2 rounded-full bg-slate-900/15 text-slate-950 text-[10px] font-extrabold';
+                    recBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 flex items-center gap-1.5 cursor-pointer';
+                    if (recBadge) recBadge.className = 'px-1.5 py-0.2 rounded-full bg-slate-200 text-slate-700 text-[10px] font-extrabold';
+                }
+            }
+            renderHistory();
+        }
+
         function switchTradesSubtab(subtab) {
             appState.tradesSubtab = subtab;
-            const tabs = ['requests', 'inprogress', 'completed', 'cancelled'];
+            const tabs = ['requests', 'inprogress', 'completed'];
             tabs.forEach(tb => {
                 const btn = document.getElementById(`trades-subtab-${tb}`);
                 const count = document.getElementById(`trades-subtab-${tb}-count`);
@@ -2637,27 +2769,38 @@
                     if (count) count.className = 'px-1.5 py-0.2 rounded-full bg-slate-200 text-slate-700 text-[10px] font-extrabold';
                 }
             });
+
+            const dirBar = document.getElementById('requests-direction-bar');
+            if (dirBar) {
+                dirBar.classList.toggle('hidden', subtab !== 'requests');
+            }
             renderHistory();
         }
 
         function updateTradesBadge() {
-            const requestsCount = appState.trades.filter(t =>
+            const allRequests = appState.trades.filter(t =>
                 ['waiting_partner_selection', 'waiting_my_selection', 'ready_to_accept'].includes(t.status)
-            ).length;
+            );
+            const receivedCount = allRequests.filter(t => !isTradeSentByMe(t)).length;
+            const sentCount = allRequests.filter(t => isTradeSentByMe(t)).length;
+
             const inProgressCount = appState.trades.filter(t =>
                 ['in_transit', 'disputed'].includes(t.status)
             ).length;
-            const completedCount = appState.trades.filter(t => t.status === 'completed').length;
-            const cancelledCount = appState.trades.filter(t => t.status === 'cancelled').length;
+            const completedCount = appState.trades.filter(t =>
+                ['completed', 'cancelled'].includes(t.status)
+            ).length;
 
             const rEl = document.getElementById('trades-subtab-requests-count');
             const pEl = document.getElementById('trades-subtab-inprogress-count');
             const cEl = document.getElementById('trades-subtab-completed-count');
-            const xEl = document.getElementById('trades-subtab-cancelled-count');
-            if (rEl) rEl.textContent = requestsCount;
+            const recEl = document.getElementById('req-dir-received-count');
+            const sentEl = document.getElementById('req-dir-sent-count');
+            if (rEl) rEl.textContent = allRequests.length;
             if (pEl) pEl.textContent = inProgressCount;
             if (cEl) cEl.textContent = completedCount;
-            if (xEl) xEl.textContent = cancelledCount;
+            if (recEl) recEl.textContent = receivedCount;
+            if (sentEl) sentEl.textContent = sentCount;
 
             // Sugerencia 3: Punto rojo animado cuando hay acciones pendientes
             const actionableCount = appState.trades.filter(t =>
@@ -2740,21 +2883,31 @@
 
             const filtered = appState.trades.filter(t => {
                 if (appState.tradesSubtab === 'requests') {
-                    return ['waiting_partner_selection', 'waiting_my_selection', 'ready_to_accept'].includes(t.status);
+                    const isReq = ['waiting_partner_selection', 'waiting_my_selection', 'ready_to_accept'].includes(t.status);
+                    if (!isReq) return false;
+                    return appState.requestsDirection === 'sent' ? isTradeSentByMe(t) : !isTradeSentByMe(t);
                 }
                 if (appState.tradesSubtab === 'inprogress') {
                     return ['in_transit', 'disputed'].includes(t.status);
                 }
-                if (appState.tradesSubtab === 'completed') {
-                    return t.status === 'completed';
-                }
-                return t.status === 'cancelled';
+                return ['completed', 'cancelled'].includes(t.status);
             });
 
             if (filtered.length === 0) {
+                const emptyText = appState.tradesSubtab === 'requests'
+                    ? (appState.requestsDirection === 'sent'
+                        ? (appState.lang === 'en' ? 'No sent requests yet. Go to Explore to request caps!' : 'No tienes solicitudes enviadas. Ve a Explorar para pedir chapas.')
+                        : (appState.lang === 'en' ? 'No received requests right now.' : 'No tienes solicitudes recibidas en este momento.'))
+                    : (appState.lang === 'en' ? 'No swaps in this section yet.' : 'No hay intercambios en esta pestaña.');
+
                 listEl.innerHTML = `
-                    <div class="bg-white rounded-2xl border border-dashed border-slate-300 p-8 text-center">
-                        <p class="text-sm font-bold text-slate-600">${appState.lang === 'en' ? 'No swaps in this section yet.' : 'No hay intercambios en esta pestaña.'}</p>
+                    <div class="bg-white rounded-2xl border border-dashed border-slate-300 p-8 text-center space-y-3">
+                        <p class="text-sm font-bold text-slate-600">${emptyText}</p>
+                        ${appState.tradesSubtab === 'requests' ? `
+                            <button type="button" onclick="switchTab('explore')" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-extrabold cursor-pointer">
+                                ${t('navExplorar')}
+                            </button>
+                        ` : ''}
                     </div>
                 `;
                 return;
@@ -3647,7 +3800,8 @@
             setText('trades-subtab-requests-lbl', 'tabRequests');
             setText('trades-subtab-inprogress-lbl', 'tabInProgress');
             setText('trades-subtab-completed-lbl', 'tabCompleted');
-            setText('trades-subtab-cancelled-lbl', 'tabCancelled');
+            setText('req-dir-received-lbl', 'reqReceived');
+            setText('req-dir-sent-lbl', 'reqSent');
             setText('lbl-wanted-panel-title', 'capsYouRequestTitle');
             setText('btn-send-trade-lbl', 'sendTradeBtn');
             setText('lbl-no-rating-badge', 'noRatingsYet');
