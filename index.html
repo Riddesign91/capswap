@@ -221,9 +221,15 @@
                             <h2 id="title-explore" class="font-display font-extrabold text-lg sm:text-xl text-slate-900">Explorar Coleccionistas</h2>
                             <p id="subtitle-explore" class="text-xs text-slate-500">Busca un coleccionista por usuario o ciudad para ver sus repetidas y proponer cambio.</p>
                         </div>
-                        <button type="button" id="btn-show-all-collectors" onclick="toggleShowAllCollectors()" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold cursor-pointer">
-                            Ver todos
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <button type="button" id="btn-refresh-collectors" onclick="refreshCollectorsFromCloud()" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold flex items-center gap-1 cursor-pointer">
+                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                                <span id="lbl-refresh-collectors">Actualizar</span>
+                            </button>
+                            <button type="button" id="btn-show-all-collectors" onclick="toggleShowAllCollectors()" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold cursor-pointer">
+                                Ver todos
+                            </button>
+                        </div>
                     </div>
 
                     <div class="relative">
@@ -901,10 +907,21 @@
     <!-- ========================================================= -->
     <script>
         const SUPABASE_URL = 'https://kfbhupfjqyvjlljfjxbc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmYmh1cGZqcXl2amxsamZqeGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTY0MzEsImV4cCI6MjA5MTI5MjQzMX0.z_tS4w3W87m8J5q5g-6xH5O5Y5Q5Z5Q5Z5Q5Z5Q5Z5Q';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmYmh1cGZqcXl2amxsamZqeGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTY0MzEsImV4cCI6MjA5MTI5MjQzMX0.rR37H7d8Z37a9J6W6P2d3J1xG5-q9N1sM2h8v-K8X9I';
 
         const STORAGE_KEY = 'capswap_accounts_v2';
+        const LEGACY_STORAGE_KEYS = ['capswap_accounts_v1', 'capswap_accounts'];
         const SESSION_KEY = 'capswap_active_user_id';
+
+        const DEFAULT_USER_PROFILE = {
+            name: '',
+            username: '@usuario',
+            email: '',
+            location: '',
+            bio: '',
+            postalAddress: '',
+            avatarDataUrl: null
+        };
 
         const CAP_CATEGORIES = [
             { id: 'cerveza', label: 'Cerveza', labelEn: 'Beer' },
@@ -917,73 +934,20 @@
             { id: 'otro', label: 'Otro', labelEn: 'Other' }
         ];
 
-        const COUNTRIES_LIST = [
-            'España', 'Alemania', 'Bélgica', 'Francia', 'Italia', 'Portugal', 'Reino Unido', 'Irlanda',
-            'Países Bajos', 'Austria', 'Suiza', 'Polonia', 'República Checa', 'Dinamarca', 'Suecia',
-            'Noruega', 'Finlandia', 'Grecia', 'Estados Unidos', 'México', 'Colombia', 'Argentina',
-            'Chile', 'Perú', 'Brasil', 'Japón', 'China', 'Corea del Sur', 'Australia', 'Canadá'
-        ];
-
         const CAP_PRESETS = [
-            { id: 'red-gold', bg: '#b91c1c', ring: '#fbbf24', text: '#fef08a', label: 'CLS' },
-            { id: 'blue-silver', bg: '#1d4ed8', ring: '#e2e8f0', text: '#ffffff', label: 'BLU' },
-            { id: 'green-gold', bg: '#15803d', ring: '#fde047', text: '#fef9c3', label: 'HOP' },
-            { id: 'amber-dark', bg: '#d97706', ring: '#1e293b', text: '#0f172a', label: 'IPA' },
-            { id: 'black-gold', bg: '#18181b', ring: '#f59e0b', text: '#fbbf24', label: 'BLK' }
+            { id: 'red-gold', bg: '#b91c1c', ring: '#fbbf24', text: '#ffffff', label: 'CS' },
+            { id: 'amber-dark', bg: '#d97706', ring: '#1e293b', text: '#ffffff', label: 'BEER' },
+            { id: 'emerald-silver', bg: '#047857', ring: '#e2e8f0', text: '#ffffff', label: 'BREW' },
+            { id: 'navy-gold', bg: '#1e3a8a', ring: '#f59e0b', text: '#fef3c7', label: 'CLUB' }
         ];
 
-        const DEFAULT_USER_PROFILE = {
-            name: '',
-            username: '@usuario',
-            email: '',
-            location: '',
-            bio: '',
-            postalAddress: '',
-            avatarDataUrl: null
-        };
-
-        let appState = {
-            lang: localStorage.getItem('capswap_lang') || 'es',
-            accounts: [],
-            currentUserId: null,
-            userProfile: { ...DEFAULT_USER_PROFILE },
-            myCaps: [],
-            myWishlist: [],
-            myCategoryFilter: 'all',
-            showAllCollectors: false,
-            selectedCollectorId: null,
-            wantedCapIds: [],
-            trades: [],
-            tradesSubtab: 'requests',
-            expandedTradeId: null,
-            newCapForm: {
-                photoDataUrl: null,
-                selectedPresetId: 'red-gold',
-                category: 'cerveza',
-                country: '',
-                unopened: false,
-                batchPhotos: [],
-                isCropMode: false,
-                loadedImage: null,
-                cropRects: [],
-                croppedDataUrls: []
-            },
-            newWishForm: {
-                photoDataUrl: null,
-                category: 'cerveza',
-                country: ''
-            },
-            editingCapId: null,
-            editingCapCategory: 'otro',
-            respondingTradeId: null,
-            respondingSelectedCapIds: [],
-            ratingTradeId: null,
-            selectedRatingScore: 5,
-            claimingTradeId: null,
-            cancellingTrade: null,
-            zoomContext: null,
-            lastActionableTradesCount: 0
-        };
+        const COUNTRIES_LIST = [
+            'España', 'Alemania', 'Bélgica', 'Francia', 'Italia', 'Portugal',
+            'Reino Unido', 'Irlanda', 'Países Bajos', 'República Checa', 'Polonia',
+            'Austria', 'Suiza', 'Dinamarca', 'Suecia', 'Noruega', 'Finlandia',
+            'Estados Unidos', 'México', 'Brasil', 'Argentina', 'Chile', 'Colombia',
+            'Japón', 'China', 'Corea del Sur', 'Australia', 'Canadá', 'Rusia', 'Grecia'
+        ];
 
         const I18N = {
             es: {
@@ -1008,10 +972,10 @@
                 tabCancelled: 'Cancelados',
                 capsYouRequestTitle: 'Chapas que pides de su galería',
                 sendTradeBtn: 'Enviar Petición de Cambio',
-                tradeMsgPlaceholder: 'Mensaje opcional para el coleccionista...',
-                searchCollectorPlaceholder: 'Escribe al menos 3 letras (@usuario, ciudad o país)...',
-                searchMyCapsPlaceholder: 'Buscar en mis repetidas por nota, marca o país...',
-                allCategories: 'Todas',
+                noRatingsYet: 'Sin valoraciones',
+                statModels: 'Modelos',
+                statDuplicates: 'Repetidas',
+                statSwaps: 'Cambios',
                 editProfileTitle: 'Editar Mi Perfil',
                 profName: 'Nombre completo',
                 profUser: 'Nombre de usuario',
@@ -1027,29 +991,29 @@
                 deleteProfile: 'Eliminar perfil',
                 saveProfile: 'Guardar Perfil',
                 logoutBtn: 'Cerrar Sesión',
-                statModels: 'Modelos',
-                statDuplicates: 'Repetidas',
-                statSwaps: 'Cambios',
-                noRatingsYet: 'Sin valoraciones',
-                unopenedBadge: 'Sin abrir',
                 unopenedLabel: '✨ Chapa sin abrir (nueva / sin usar)',
+                unopenedBadge: 'Sin abrir',
                 circularScannerBtn: 'Escáner Circular',
+                tradeMsgPlaceholder: 'Mensaje opcional para el coleccionista...',
+                searchCollectorPlaceholder: 'Escribe al menos 3 letras (@usuario, ciudad o país)...',
+                searchMyCapsPlaceholder: 'Buscar en mis repetidas por nota, marca o país...',
+                allCategories: 'Todas',
+                noneLabel: 'Ninguna',
+                capsYouReceive: 'Chapas que recibes',
+                capsYouGive: 'Chapas que entregas',
                 compareFaceToFace: 'Comparar Cara a Cara',
+                rejectTradeBtn: 'Rechazar cambio',
+                cancelRequestBtn: 'Cancelar solicitud',
+                downloadSummaryBtn: 'Descargar Imagen Resumen',
+                chooseTheirCaps: 'Elegir sus chapas',
+                acceptTradeBtn: 'Aceptar cambio',
+                confirmReceiptBtn: 'Confirmar recepción',
+                claimBtn: 'Reclamar',
                 chatTitle: 'Chat del intercambio',
                 chatShareAddressBtn: 'Compartir mi dirección postal',
                 chatMarkSentBtn: 'Marcar como enviado hoy',
-                chatPlaceholder: 'Escribe un mensaje al coleccionista...',
-                chatSendBtn: 'Enviar',
-                capsYouReceive: 'Chapas que recibes',
-                capsYouGive: 'Chapas que entregas',
-                noneLabel: 'Ninguna',
-                chooseTheirCaps: 'Elegir sus chapas',
-                acceptTradeBtn: 'Aceptar Cambio',
-                confirmReceiptBtn: 'Confirmar Recepción',
-                claimBtn: 'Reclamar',
-                cancelRequestBtn: 'Cancelar solicitud',
-                rejectTradeBtn: 'Rechazar cambio',
-                downloadSummaryBtn: 'Descargar Imagen Resumen'
+                chatPlaceholder: 'Escribe un mensaje para coordinar el envío...',
+                chatSendBtn: 'Enviar'
             },
             en: {
                 navRepetidas: 'Duplicates',
@@ -1059,24 +1023,24 @@
                 myProfile: 'My Profile',
                 myCollectionTitle: 'My Duplicate Caps',
                 addCapBtn: 'Add Cap',
-                wishlistTitle: 'Caps I Am Looking For',
+                wishlistTitle: 'Caps I Want',
                 addWishBtn: 'Add Wish',
                 exploreTitle: 'Explore Collectors',
-                exploreSubtitle: 'Search collectors by username or location to browse their duplicates and propose a swap.',
+                exploreSubtitle: 'Search collectors by username or city to browse duplicates and propose a swap.',
                 showAllCollectors: 'Show all',
                 hideAllCollectors: 'Hide list',
                 historyTitle: 'Swaps',
-                historySubtitle: 'Manage your sent and received requests, active shipments and swap history.',
+                historySubtitle: 'Manage sent and received requests, active shipments, and history.',
                 tabRequests: 'Requests',
                 tabInProgress: 'In Progress',
                 tabCompleted: 'Completed',
                 tabCancelled: 'Cancelled',
                 capsYouRequestTitle: 'Caps you request from their gallery',
                 sendTradeBtn: 'Send Swap Request',
-                tradeMsgPlaceholder: 'Optional message for the collector...',
-                searchCollectorPlaceholder: 'Type at least 3 letters (@username, city or country)...',
-                searchMyCapsPlaceholder: 'Search my duplicates by notes, brand or country...',
-                allCategories: 'All',
+                noRatingsYet: 'No ratings yet',
+                statModels: 'Models',
+                statDuplicates: 'Duplicates',
+                statSwaps: 'Swaps',
                 editProfileTitle: 'Edit My Profile',
                 profName: 'Full name',
                 profUser: 'Username',
@@ -1084,48 +1048,92 @@
                 profLocation: 'City / Country',
                 profBio: 'Bio / Collection interests',
                 profPostalBadge: 'Only visible if you share it',
-                profPostalHint: 'Nobody can see this address on your public profile. It is only sent when you tap <strong>"Share my postal address"</strong> inside a swap chat.',
-                backupTitle: 'Account backup & restore',
-                backupDesc: 'Download or restore your duplicates, wishlist and history in a .json file.',
+                profPostalHint: 'Nobody can see this address on your public profile. It is only sent if you click <strong>"Share my postal address"</strong> inside a swap chat.',
+                backupTitle: 'Account Backup',
+                backupDesc: 'Download or restore your duplicates, wishlist, and history in a .json file.',
                 exportBackup: 'Export JSON',
                 restoreBackup: 'Restore',
                 deleteProfile: 'Delete profile',
                 saveProfile: 'Save Profile',
                 logoutBtn: 'Log Out',
-                statModels: 'Models',
-                statDuplicates: 'Duplicates',
-                statSwaps: 'Swaps',
-                noRatingsYet: 'No ratings yet',
-                unopenedBadge: 'Unopened',
                 unopenedLabel: '✨ Unopened cap (mint / unused)',
+                unopenedBadge: 'Unopened',
                 circularScannerBtn: 'Circular Scanner',
-                compareFaceToFace: 'Compare Face to Face',
+                tradeMsgPlaceholder: 'Optional message for the collector...',
+                searchCollectorPlaceholder: 'Type at least 3 letters (@username, city or country)...',
+                searchMyCapsPlaceholder: 'Search my duplicates by note, brand or country...',
+                allCategories: 'All',
+                noneLabel: 'None',
+                capsYouReceive: 'Caps you receive',
+                capsYouGive: 'Caps you give',
+                compareFaceToFace: 'Compare Face-to-Face',
+                rejectTradeBtn: 'Reject swap',
+                cancelRequestBtn: 'Cancel request',
+                downloadSummaryBtn: 'Download Summary Image',
+                chooseTheirCaps: 'Choose their caps',
+                acceptTradeBtn: 'Accept swap',
+                confirmReceiptBtn: 'Confirm receipt',
+                claimBtn: 'Open claim',
                 chatTitle: 'Swap chat',
                 chatShareAddressBtn: 'Share my postal address',
                 chatMarkSentBtn: 'Mark as sent today',
-                chatPlaceholder: 'Write a message to the collector...',
-                chatSendBtn: 'Send',
-                capsYouReceive: 'Caps you receive',
-                capsYouGive: 'Caps you give',
-                noneLabel: 'None',
-                chooseTheirCaps: 'Choose their caps',
-                acceptTradeBtn: 'Accept Swap',
-                confirmReceiptBtn: 'Confirm Receipt',
-                claimBtn: 'Report Issue',
-                cancelRequestBtn: 'Cancel request',
-                rejectTradeBtn: 'Reject swap',
-                downloadSummaryBtn: 'Download Summary Image'
+                chatPlaceholder: 'Write a message to coordinate shipping...',
+                chatSendBtn: 'Send'
+            }
+        };
+
+        const appState = {
+            lang: localStorage.getItem('capswap_lang') || 'es',
+            accounts: [],
+            currentUserId: null,
+            userProfile: { ...DEFAULT_USER_PROFILE },
+            myCaps: [],
+            myWishlist: [],
+            trades: [],
+            myCategoryFilter: 'all',
+            showAllCollectors: false,
+            selectedCollectorId: null,
+            wantedCapIds: [],
+            tradesSubtab: 'requests',
+            expandedTradeId: null,
+            lastActionableTradesCount: 0,
+            zoomContext: null,
+            editingCapId: null,
+            editingCapCategory: 'cerveza',
+            respondingTradeId: null,
+            respondingSelectedCapIds: [],
+            ratingTradeId: null,
+            selectedRatingScore: 5,
+            claimingTradeId: null,
+            cancellingTrade: null,
+            newCapForm: {
+                photoDataUrl: null,
+                selectedPresetId: 'red-gold',
+                category: 'cerveza',
+                country: '',
+                unopened: false,
+                batchPhotos: [],
+                isCropMode: false,
+                loadedImage: null,
+                cropRects: [],
+                croppedDataUrls: []
+            },
+            newWishForm: {
+                photoDataUrl: null,
+                category: 'cerveza',
+                country: ''
             }
         };
 
         function t(key) {
-            return (I18N[appState.lang] && I18N[appState.lang][key]) || I18N.es[key] || key;
+            const dict = I18N[appState.lang] || I18N.es;
+            return dict[key] || I18N.es[key] || key;
         }
 
         function getCategoryLabel(catId) {
-            const found = CAP_CATEGORIES.find(c => c.id === catId);
-            if (!found) return '';
-            return appState.lang === 'en' ? found.labelEn : found.label;
+            const cat = CAP_CATEGORIES.find(c => c.id === catId);
+            if (!cat) return '';
+            return appState.lang === 'en' ? cat.labelEn : cat.label;
         }
 
         // =========================================================
@@ -1133,16 +1141,36 @@
         // =========================================================
         window.CapSwapCloud = {
             async fetchAllAccounts() {
+                const headers = {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                };
                 try {
-                    const res = await fetch(`${SUPABASE_URL}/rest/v1/capswap_sync?select=account_id,payload`, {
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    // Intentar lectura desde capswap_sync (formato payload o columnas directas)
+                    const res = await fetch(`${SUPABASE_URL}/rest/v1/capswap_sync?select=*`, { headers });
+                    if (res.ok) {
+                        const rows = await res.json();
+                        if (Array.isArray(rows) && rows.length > 0) {
+                            return rows.map(r => {
+                                if (r && r.payload && typeof r.payload === 'object') {
+                                    return { ...r.payload, id: r.payload.id || r.account_id };
+                                }
+                                if (r && (r.account_id || r.id)) {
+                                    return { ...r, id: r.id || r.account_id };
+                                }
+                                return null;
+                            }).filter(Boolean);
                         }
-                    });
-                    if (!res.ok) return null;
-                    const rows = await res.json();
-                    return Array.isArray(rows) ? rows.map(r => r.payload).filter(Boolean) : [];
+                    }
+                    // Respaldo: intentar tabla capswap_accounts si existiera
+                    const resAlt = await fetch(`${SUPABASE_URL}/rest/v1/capswap_accounts?select=*`, { headers });
+                    if (resAlt.ok) {
+                        const rowsAlt = await resAlt.json();
+                        if (Array.isArray(rowsAlt)) {
+                            return rowsAlt.map(r => (r && r.payload ? { ...r.payload, id: r.payload.id || r.id } : r)).filter(Boolean);
+                        }
+                    }
+                    return null;
                 } catch (e) {
                     return null;
                 }
@@ -1150,13 +1178,13 @@
             async saveAccountToCloud(accountObj) {
                 if (!accountObj || !accountObj.id) return;
                 try {
-                    await fetch(`${SUPABASE_URL}/rest/v1/capswap_sync`, {
+                    await fetch(`${SUPABASE_URL}/rest/v1/capswap_sync?on_conflict=account_id`, {
                         method: 'POST',
                         headers: {
                             'apikey': SUPABASE_ANON_KEY,
                             'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
                             'Content-Type': 'application/json',
-                            'Prefer': 'resolution=merge-duplicates'
+                            'Prefer': 'resolution=merge-duplicates,return=minimal'
                         },
                         body: JSON.stringify({
                             account_id: String(accountObj.id),
@@ -1215,7 +1243,9 @@
                     }
                 }
             });
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState.accounts));
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState.accounts));
+            } catch (e) {}
         }
 
         async function syncWithCloudNow() {
@@ -1229,9 +1259,22 @@
                     }
                     if (!document.getElementById('view-explore').classList.contains('hidden')) {
                         renderCollectorTabs();
+                        renderCollectorGallery();
                     }
                 }
             }
+            return cloudAccounts;
+        }
+
+        async function refreshCollectorsFromCloud() {
+            const res = await syncWithCloudNow();
+            const count = getCollectorsList().length;
+            showToast(
+                appState.lang === 'en'
+                    ? `Collectors synced (${count} available).`
+                    : `Coleccionistas sincronizados (${count} disponibles).`,
+                res !== null ? 'success' : 'info'
+            );
         }
 
         // =========================================================
@@ -1242,6 +1285,20 @@
                 const raw = localStorage.getItem(STORAGE_KEY);
                 appState.accounts = raw ? JSON.parse(raw) : [];
                 if (!Array.isArray(appState.accounts)) appState.accounts = [];
+
+                // Migrar cuentas guardadas en claves anteriores si existieran
+                LEGACY_STORAGE_KEYS.forEach(oldKey => {
+                    const oldRaw = localStorage.getItem(oldKey);
+                    if (!oldRaw) return;
+                    const oldList = JSON.parse(oldRaw);
+                    if (Array.isArray(oldList)) {
+                        oldList.forEach(oldAcc => {
+                            if (oldAcc && oldAcc.id && !appState.accounts.some(a => String(a.id) === String(oldAcc.id))) {
+                                appState.accounts.push(oldAcc);
+                            }
+                        });
+                    }
+                });
             } catch (e) {
                 appState.accounts = [];
             }
@@ -2301,14 +2358,22 @@
         }
 
         function getCollectorsList() {
+            const curId = String(appState.currentUserId || '');
+            const curUser = (appState.userProfile?.username || '').toLowerCase();
             return appState.accounts
-                .filter(a => String(a.id) !== String(appState.currentUserId))
+                .filter(a => {
+                    if (!a || !a.id) return false;
+                    if (String(a.id) === curId) return false;
+                    const u = (a.profile?.username || '').toLowerCase();
+                    if (curUser && u && u === curUser) return false;
+                    return true;
+                })
                 .map(a => ({
                     id: a.id,
-                    name: a.profile?.name || 'Coleccionista',
-                    username: a.profile?.username || '@usuario',
-                    location: a.profile?.location || '',
-                    bio: a.profile?.bio || '',
+                    name: a.profile?.name || a.name || 'Coleccionista',
+                    username: a.profile?.username || a.username || '@usuario',
+                    location: a.profile?.location || a.location || '',
+                    bio: a.profile?.bio || a.bio || '',
                     caps: Array.isArray(a.myCaps) ? a.myCaps : [],
                     wishlist: Array.isArray(a.myWishlist) ? a.myWishlist : [],
                     ratingInfo: getCollectorAverageRating(a)
@@ -2332,7 +2397,10 @@
             const allCollectors = getCollectorsList();
 
             if (!appState.showAllCollectors && query.length < 3) {
-                container.innerHTML = `<p class="text-xs text-slate-400 italic py-1">${appState.lang === 'en' ? 'Type at least 3 letters above or tap "Show all".' : 'Escribe al menos 3 letras en el buscador o pulsa "Ver todos".'}</p>`;
+                const countHint = allCollectors.length > 0
+                    ? (appState.lang === 'en' ? ` (${allCollectors.length} collectors registered)` : ` (${allCollectors.length} coleccionistas registrados)`)
+                    : '';
+                container.innerHTML = `<p class="text-xs text-slate-400 italic py-1">${appState.lang === 'en' ? 'Type at least 3 letters above or tap "Show all"' : 'Escribe al menos 3 letras en el buscador o pulsa "Ver todos"'}${countHint}.</p>`;
                 return;
             }
 
