@@ -882,8 +882,8 @@
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm"></div>
 
     <script>
-        const SUPABASE_URL = 'https://kfbhupfjqyvjlljfjxbc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmYmh1cGZqcXl2amxsamZqeGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTY0MzEsImV4cCI6MjA5MTI5MjQzMX0.9G_p6o0p5q6r7s8t9u0v1w2x3y4z5A6B7C8D9E0F1G2';
+        const SUPABASE_URL = 'https://rjtnabhsqfkusbqrdwbn.supabase.co/rest/v1';
+        const SUPABASE_ANON_KEY = 'sb_publishable_d9TaUaJ4YEuUOELBTpAfFQ_GGCcI9IA';
 
         const STORAGE_KEY = 'capswap_accounts_v2';
         const SESSION_KEY = 'capswap_active_user_id';
@@ -1141,14 +1141,21 @@
         // =========================================================
         window.CapSwapCloud = {
             lastSyncError: null,
+            getHeaders(extra = {}) {
+                const headers = {
+                    'apikey': SUPABASE_ANON_KEY,
+                    ...extra
+                };
+                if (SUPABASE_ANON_KEY.startsWith('eyJ')) {
+                    headers['Authorization'] = `Bearer ${SUPABASE_ANON_KEY}`;
+                }
+                return headers;
+            },
             async fetchAllAccounts() {
                 try {
-                    const res = await fetch(`${SUPABASE_URL}/rest/v1/capswap_sync?select=*`, {
+                    const res = await fetch(`${SUPABASE_URL}/capswap_sync?select=*`, {
                         cache: 'no-store',
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                        }
+                        headers: this.getHeaders()
                     });
                     if (!res.ok) {
                         this.lastSyncError = `HTTP ${res.status}`;
@@ -1174,14 +1181,12 @@
                 if (!isRealCollectorAccount(accountObj)) return false;
                 try {
                     const safeObj = buildCloudSafeAccountCopy(accountObj);
-                    const res = await fetch(`${SUPABASE_URL}/rest/v1/capswap_sync?on_conflict=account_id`, {
+                    const res = await fetch(`${SUPABASE_URL}/capswap_sync?on_conflict=account_id`, {
                         method: 'POST',
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        headers: this.getHeaders({
                             'Content-Type': 'application/json',
                             'Prefer': 'resolution=merge-duplicates,return=minimal'
-                        },
+                        }),
                         body: JSON.stringify({
                             account_id: String(safeObj.id),
                             payload: safeObj,
@@ -1201,12 +1206,9 @@
             },
             async deleteAccountFromCloud(accountId) {
                 try {
-                    await fetch(`${SUPABASE_URL}/rest/v1/capswap_sync?account_id=eq.${encodeURIComponent(String(accountId))}`, {
+                    await fetch(`${SUPABASE_URL}/capswap_sync?account_id=eq.${encodeURIComponent(String(accountId))}`, {
                         method: 'DELETE',
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                        }
+                        headers: this.getHeaders()
                     });
                 } catch (e) {}
             }
