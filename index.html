@@ -1135,37 +1135,6 @@
             return Boolean(acc.profile && (acc.profile.username || acc.profile.name || acc.profile.email));
         }
 
-        const KEEP_ONLY_RIDDERCAPS_VERSION = 'capswap_purge_except_riddercaps_v2';
-
-        function isRiddercapsAccount(acc) {
-            const uname = (acc?.profile?.username || '').trim().toLowerCase();
-            const name = (acc?.profile?.name || '').trim().toLowerCase();
-            return uname === '@riddercaps' || uname === 'riddercaps' || name === 'riddercaps';
-        }
-
-        async function enforceRiddercapsOnlyCleanup() {
-            if (localStorage.getItem(KEEP_ONLY_RIDDERCAPS_VERSION) === 'done') return;
-
-            const toDelete = appState.accounts.filter(acc => !isRiddercapsAccount(acc));
-            appState.accounts = appState.accounts.filter(isRiddercapsAccount);
-            persistAccountsSafely(appState.accounts);
-
-            for (const acc of toDelete) {
-                if (acc && acc.id) {
-                    await window.CapSwapCloud.deleteAccountFromCloud(acc.id);
-                }
-            }
-
-            const activeSaved = localStorage.getItem(SESSION_KEY);
-            if (activeSaved && !appState.accounts.some(a => String(a.id) === String(activeSaved))) {
-                localStorage.removeItem(SESSION_KEY);
-            }
-
-            try {
-                localStorage.setItem(KEEP_ONLY_RIDDERCAPS_VERSION, 'done');
-            } catch (e) {}
-        }
-
         function buildCloudSafeAccountCopy(accountObj) {
             const clone = JSON.parse(JSON.stringify(accountObj));
             if (Array.isArray(clone.myCaps)) {
@@ -1289,10 +1258,6 @@
 
         function mergeCloudAccounts(cloudList) {
             if (!Array.isArray(cloudList)) return;
-            const cloudIds = new Set(cloudList.map(c => String(c.id)));
-            appState.accounts = appState.accounts.filter(a =>
-                isRealCollectorAccount(a) && (cloudIds.has(String(a.id)) || String(a.id) === String(appState.currentUserId))
-            );
             cloudList.filter(isRealCollectorAccount).forEach(cAcc => {
                 const localIdx = appState.accounts.findIndex(a => String(a.id) === String(cAcc.id));
                 if (localIdx === -1) {
@@ -1499,7 +1464,11 @@
 
                 appState.accounts.push(newAccount);
                 loadAccountIntoState(newAccount);
-                saveState();
+                persistAccountsSafely(appState.accounts);
+                const cloudSaved = await window.CapSwapCloud.saveAccountToCloud(newAccount);
+                if (!cloudSaved && window.CapSwapCloud.lastSyncError) {
+                    showToast(`Aviso nube (${window.CapSwapCloud.lastSyncError}): cuenta guardada en este dispositivo.`, 'error');
+                }
                 showAuthenticatedApp();
             } finally {
                 if (submitBtn) submitBtn.disabled = false;
@@ -3890,7 +3859,6 @@
             if (window.lucide) lucide.createIcons();
 
             await syncWithCloudNow(false);
-            await enforceRiddercapsOnlyCleanup();
 
             let savedUserId = null;
             try {
