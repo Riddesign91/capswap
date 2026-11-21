@@ -1135,7 +1135,7 @@
             return Boolean(acc.profile && (acc.profile.username || acc.profile.name || acc.profile.email));
         }
 
-        const KEEP_ONLY_RIDDERCAPS_VERSION = 'capswap_purge_except_riddercaps_v1';
+        const KEEP_ONLY_RIDDERCAPS_VERSION = 'capswap_purge_except_riddercaps_v2';
 
         function isRiddercapsAccount(acc) {
             const uname = (acc?.profile?.username || '').trim().toLowerCase();
@@ -1289,7 +1289,10 @@
 
         function mergeCloudAccounts(cloudList) {
             if (!Array.isArray(cloudList)) return;
-            appState.accounts = appState.accounts.filter(isRealCollectorAccount);
+            const cloudIds = new Set(cloudList.map(c => String(c.id)));
+            appState.accounts = appState.accounts.filter(a =>
+                isRealCollectorAccount(a) && (cloudIds.has(String(a.id)) || String(a.id) === String(appState.currentUserId))
+            );
             cloudList.filter(isRealCollectorAccount).forEach(cAcc => {
                 const localIdx = appState.accounts.findIndex(a => String(a.id) === String(cAcc.id));
                 if (localIdx === -1) {
