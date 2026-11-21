@@ -1184,14 +1184,11 @@
         window.CapSwapCloud = {
             lastSyncError: null,
             getHeaders(extra = {}) {
-                const headers = {
+                return {
                     'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
                     ...extra
                 };
-                if (SUPABASE_ANON_KEY.startsWith('eyJ')) {
-                    headers['Authorization'] = `Bearer ${SUPABASE_ANON_KEY}`;
-                }
-                return headers;
             },
             async fetchAllAccounts() {
                 try {
@@ -1200,7 +1197,8 @@
                         headers: this.getHeaders()
                     });
                     if (!res.ok) {
-                        this.lastSyncError = `HTTP ${res.status}`;
+                        const errBody = await res.text().catch(() => '');
+                        this.lastSyncError = `HTTP ${res.status}${errBody ? ': ' + errBody.slice(0, 90) : ''}`;
                         return null;
                     }
                     this.lastSyncError = null;
@@ -1209,7 +1207,7 @@
                     return rows.map(r => {
                         const obj = r.payload || r.data || r.account_data || r;
                         if (obj && typeof obj === 'object') {
-                            if (!obj.id && r.account_id) obj.id = r.account_id;
+                            if (!obj.id && (r.account_id || r.id)) obj.id = r.account_id || r.id;
                             return obj;
                         }
                         return null;
@@ -1223,20 +1221,47 @@
                 if (!isRealCollectorAccount(accountObj)) return false;
                 try {
                     const safeObj = buildCloudSafeAccountCopy(accountObj);
-                    const res = await fetch(`${SUPABASE_URL}/capswap_sync?on_conflict=account_id`, {
-                        method: 'POST',
+                    const accountIdStr = String(safeObj.id);
+                    const bodyPayload = JSON.stringify({
+                        account_id: accountIdStr,
+                        payload: safeObj,
+                        updated_at: new Date().toISOString()
+                    });
+
+                    // Intento 1: PATCH si ya existe fila para account_id
+                    const patchRes = await fetch(`${SUPABASE_URL}/capswap_sync?account_id=eq.${encodeURIComponent(accountIdStr)}`, {
+                        method: 'PATCH',
                         headers: this.getHeaders({
                             'Content-Type': 'application/json',
-                            'Prefer': 'resolution=merge-duplicates,return=minimal'
+                            'Prefer': 'return=representation'
                         }),
                         body: JSON.stringify({
-                            account_id: String(safeObj.id),
                             payload: safeObj,
                             updated_at: new Date().toISOString()
                         })
                     });
-                    if (!res.ok) {
-                        this.lastSyncError = `HTTP ${res.status}`;
+
+                    if (patchRes.ok) {
+                        const updatedRows = await patchRes.json().catch(() => []);
+                        if (Array.isArray(updatedRows) && updatedRows.length > 0) {
+                            this.lastSyncError = null;
+                            return true;
+                        }
+                    }
+
+                    // Intento 2: INSERT si no existía todavía
+                    const insertRes = await fetch(`${SUPABASE_URL}/capswap_sync`, {
+                        method: 'POST',
+                        headers: this.getHeaders({
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=representation'
+                        }),
+                        body: bodyPayload
+                    });
+
+                    if (!insertRes.ok) {
+                        const errBody = await insertRes.text().catch(() => '');
+                        this.lastSyncError = `HTTP ${insertRes.status}${errBody ? ': ' + errBody.slice(0, 90) : ''}`;
                         return false;
                     }
                     this.lastSyncError = null;
