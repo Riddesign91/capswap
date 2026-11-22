@@ -1224,10 +1224,23 @@
                     this.updateStatusBadge(true);
                     const rows = await res.json();
                     if (!Array.isArray(rows)) return [];
+                    if (rows.length > 0) {
+                        const sample = rows[0];
+                        if ('account_id' in sample) this.pkCol = 'account_id';
+                        else if ('user_id' in sample) this.pkCol = 'user_id';
+                        else if ('id' in sample) this.pkCol = 'id';
+
+                        if ('payload' in sample) this.dataCol = 'payload';
+                        else if ('data' in sample) this.dataCol = 'data';
+                        else if ('account_data' in sample) this.dataCol = 'account_data';
+                        else this.dataCol = null;
+                    }
                     return rows.map(r => {
                         const obj = r.payload || r.data || r.account_data || r;
                         if (obj && typeof obj === 'object') {
-                            if (!obj.id && (r.account_id || r.id)) obj.id = r.account_id || r.id;
+                            if (!obj.id && (r.account_id || r.user_id || r.id)) {
+                                obj.id = r.account_id || r.user_id || r.id;
+                            }
                             return obj;
                         }
                         return null;
@@ -1243,30 +1256,68 @@
                 try {
                     const safeObj = buildCloudSafeAccountCopy(accountObj);
                     const accountIdStr = String(safeObj.id);
+                    const pkCandidates = this.pkCol ? [this.pkCol] : ['account_id', 'id', 'user_id'];
+                    const dataCandidates = this.dataCol !== undefined
+                        ? [this.dataCol]
+                        : ['payload', 'data', 'account_data', null];
 
-                    // Upsert directo con on_conflict=account_id
-                    const upsertRes = await fetch(`${SUPABASE_URL}/capswap_sync?on_conflict=account_id`, {
-                        method: 'POST',
-                        headers: this.getHeaders({
-                            'Content-Type': 'application/json',
-                            'Prefer': 'resolution=merge-duplicates,return=representation'
-                        }),
-                        body: JSON.stringify({
-                            account_id: accountIdStr,
-                            payload: safeObj,
-                            updated_at: new Date().toISOString()
-                        })
-                    });
+                    let lastErr = '';
+                    for (const pk of pkCandidates) {
+                        for (const dc of dataCandidates) {
+                            const bodyObj = dc
+                                ? { [pk]: accountIdStr, [dc]: safeObj, updated_at: new Date().toISOString() }
+                                : { ...safeObj, [pk]: accountIdStr };
 
-                    if (!upsertRes.ok) {
-                        const errBody = await upsertRes.text().catch(() => '');
-                        this.lastSyncError = `HTTP ${upsertRes.status}${errBody ? ': ' + errBody.slice(0, 90) : ''}`;
-                        this.updateStatusBadge(false, `Error ${upsertRes.status}`);
-                        return false;
+                            // 1. Intentar actualizar fila existente (PATCH)
+                            const patchRes = await fetch(`${SUPABASE_URL}/capswap_sync?${pk}=eq.${encodeURIComponent(accountIdStr)}`, {
+                                method: 'PATCH',
+                                headers: this.getHeaders({
+                                    'Content-Type': 'application/json',
+                                    'Prefer': 'return=representation'
+                                }),
+                                body: JSON.stringify(bodyObj)
+                            });
+
+                            if (patchRes.ok) {
+                                const updatedRows = await patchRes.json().catch(() => []);
+                                if (Array.isArray(updatedRows) && updatedRows.length > 0) {
+                                    this.pkCol = pk;
+                                    this.dataCol = dc;
+                                    this.lastSyncError = null;
+                                    this.updateStatusBadge(true);
+                                    return true;
+                                }
+
+                                // 2. Si no existía aún, insertar nueva fila (POST)
+                                const postRes = await fetch(`${SUPABASE_URL}/capswap_sync`, {
+                                    method: 'POST',
+                                    headers: this.getHeaders({
+                                        'Content-Type': 'application/json',
+                                        'Prefer': 'return=representation'
+                                    }),
+                                    body: JSON.stringify(bodyObj)
+                                });
+
+                                if (postRes.ok) {
+                                    this.pkCol = pk;
+                                    this.dataCol = dc;
+                                    this.lastSyncError = null;
+                                    this.updateStatusBadge(true);
+                                    return true;
+                                } else {
+                                    const errBody = await postRes.text().catch(() => '');
+                                    lastErr = `HTTP ${postRes.status}${errBody ? ': ' + errBody.slice(0, 80) : ''}`;
+                                }
+                            } else {
+                                const errBody = await patchRes.text().catch(() => '');
+                                lastErr = `HTTP ${patchRes.status}${errBody ? ': ' + errBody.slice(0, 80) : ''}`;
+                            }
+                        }
                     }
-                    this.lastSyncError = null;
-                    this.updateStatusBadge(true);
-                    return true;
+
+                    this.lastSyncError = lastErr || 'Error 400';
+                    this.updateStatusBadge(false, lastErr ? lastErr.slice(0, 28) : 'Error 400');
+                    return false;
                 } catch (e) {
                     this.lastSyncError = e.message || 'Network error';
                     this.updateStatusBadge(false, 'Error red');
@@ -1275,7 +1326,8 @@
             },
             async deleteAccountFromCloud(accountId) {
                 try {
-                    await fetch(`${SUPABASE_URL}/capswap_sync?account_id=eq.${encodeURIComponent(String(accountId))}`, {
+                    const pk = this.pkCol || 'account_id';
+                    await fetch(`${SUPABASE_URL}/capswap_sync?${pk}=eq.${encodeURIComponent(String(accountId))}`, {
                         method: 'DELETE',
                         headers: this.getHeaders()
                     });
