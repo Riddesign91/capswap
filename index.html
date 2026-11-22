@@ -250,6 +250,9 @@
                             <p id="subtitle-explore" class="text-xs text-slate-500">Busca un coleccionista registrado por usuario o ciudad para ver sus repetidas y proponer cambio.</p>
                         </div>
                         <div class="flex items-center gap-2">
+                            <span id="cloud-sync-status-pill" class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200 text-[11px] font-bold">
+                                Sincronizando...
+                            </span>
                             <button type="button" onclick="syncWithCloudNow(true)" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer">
                                 <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
                                 <span>Actualizar</span>
@@ -1184,11 +1187,26 @@
         window.CapSwapCloud = {
             lastSyncError: null,
             getHeaders(extra = {}) {
-                return {
+                const headers = {
                     'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
                     ...extra
                 };
+                // Solo añadir Authorization Bearer si la clave es un JWT clásico (eyJ...)
+                if (SUPABASE_ANON_KEY.startsWith('eyJ')) {
+                    headers['Authorization'] = `Bearer ${SUPABASE_ANON_KEY}`;
+                }
+                return headers;
+            },
+            updateStatusBadge(isOk, detail = '') {
+                const pill = document.getElementById('cloud-sync-status-pill');
+                if (!pill) return;
+                if (isOk) {
+                    pill.className = 'px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-bold';
+                    pill.textContent = appState.lang === 'en' ? 'Cloud synced' : 'Nube conectada';
+                } else {
+                    pill.className = 'px-2.5 py-1 rounded-full bg-rose-50 text-rose-800 border border-rose-200 text-[11px] font-bold';
+                    pill.textContent = detail || (appState.lang === 'en' ? 'Cloud offline' : 'Sin conexión nube');
+                }
             },
             async fetchAllAccounts() {
                 try {
@@ -1199,9 +1217,11 @@
                     if (!res.ok) {
                         const errBody = await res.text().catch(() => '');
                         this.lastSyncError = `HTTP ${res.status}${errBody ? ': ' + errBody.slice(0, 90) : ''}`;
+                        this.updateStatusBadge(false, `Error ${res.status}`);
                         return null;
                     }
                     this.lastSyncError = null;
+                    this.updateStatusBadge(true);
                     const rows = await res.json();
                     if (!Array.isArray(rows)) return [];
                     return rows.map(r => {
@@ -1214,6 +1234,7 @@
                     }).filter(isRealCollectorAccount);
                 } catch (e) {
                     this.lastSyncError = e.message || 'Network error';
+                    this.updateStatusBadge(false, 'Error red');
                     return null;
                 }
             },
@@ -1222,52 +1243,33 @@
                 try {
                     const safeObj = buildCloudSafeAccountCopy(accountObj);
                     const accountIdStr = String(safeObj.id);
-                    const bodyPayload = JSON.stringify({
-                        account_id: accountIdStr,
-                        payload: safeObj,
-                        updated_at: new Date().toISOString()
-                    });
 
-                    // Intento 1: PATCH si ya existe fila para account_id
-                    const patchRes = await fetch(`${SUPABASE_URL}/capswap_sync?account_id=eq.${encodeURIComponent(accountIdStr)}`, {
-                        method: 'PATCH',
+                    // Upsert directo con on_conflict=account_id
+                    const upsertRes = await fetch(`${SUPABASE_URL}/capswap_sync?on_conflict=account_id`, {
+                        method: 'POST',
                         headers: this.getHeaders({
                             'Content-Type': 'application/json',
-                            'Prefer': 'return=representation'
+                            'Prefer': 'resolution=merge-duplicates,return=representation'
                         }),
                         body: JSON.stringify({
+                            account_id: accountIdStr,
                             payload: safeObj,
                             updated_at: new Date().toISOString()
                         })
                     });
 
-                    if (patchRes.ok) {
-                        const updatedRows = await patchRes.json().catch(() => []);
-                        if (Array.isArray(updatedRows) && updatedRows.length > 0) {
-                            this.lastSyncError = null;
-                            return true;
-                        }
-                    }
-
-                    // Intento 2: INSERT si no existía todavía
-                    const insertRes = await fetch(`${SUPABASE_URL}/capswap_sync`, {
-                        method: 'POST',
-                        headers: this.getHeaders({
-                            'Content-Type': 'application/json',
-                            'Prefer': 'return=representation'
-                        }),
-                        body: bodyPayload
-                    });
-
-                    if (!insertRes.ok) {
-                        const errBody = await insertRes.text().catch(() => '');
-                        this.lastSyncError = `HTTP ${insertRes.status}${errBody ? ': ' + errBody.slice(0, 90) : ''}`;
+                    if (!upsertRes.ok) {
+                        const errBody = await upsertRes.text().catch(() => '');
+                        this.lastSyncError = `HTTP ${upsertRes.status}${errBody ? ': ' + errBody.slice(0, 90) : ''}`;
+                        this.updateStatusBadge(false, `Error ${upsertRes.status}`);
                         return false;
                     }
                     this.lastSyncError = null;
+                    this.updateStatusBadge(true);
                     return true;
                 } catch (e) {
                     this.lastSyncError = e.message || 'Network error';
+                    this.updateStatusBadge(false, 'Error red');
                     return false;
                 }
             },
@@ -1321,6 +1323,14 @@
         async function syncWithCloudNow(manualFeedback = false) {
             const cloudAccounts = await window.CapSwapCloud.fetchAllAccounts();
             if (cloudAccounts) {
+                // Subir a la nube cualquier cuenta local que aún no exista en Supabase
+                const cloudIds = new Set(cloudAccounts.map(c => String(c.id)));
+                for (const localAcc of appState.accounts.filter(isRealCollectorAccount)) {
+                    if (!cloudIds.has(String(localAcc.id))) {
+                        await window.CapSwapCloud.saveAccountToCloud(localAcc);
+                    }
+                }
+
                 mergeCloudAccounts(cloudAccounts);
                 if (appState.currentUserId) {
                     updateTradesBadge();
@@ -1334,7 +1344,9 @@
                 }
                 if (manualFeedback) {
                     showToast(
-                        appState.lang === 'en' ? 'Synced with cloud!' : '¡Sincronizado con la nube!',
+                        appState.lang === 'en'
+                            ? `Synced (${appState.accounts.length} collectors)!`
+                            : `¡Sincronizado (${appState.accounts.length} coleccionistas)!`,
                         'success'
                     );
                 }
