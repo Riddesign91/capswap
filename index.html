@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#0f172aa">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>CapSwap • Intercambio de Chapas</title>
@@ -30,9 +30,12 @@
 
         <div class="relative z-10 w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
             <div class="bg-slate-900 px-6 py-7 text-center text-white relative">
-                <div class="absolute top-3 right-3 flex items-center gap-1 bg-slate-800/90 border border-slate-700 rounded-lg p-0.5">
-                    <button type="button" id="auth-lang-es" onclick="setAppLanguage('es')" class="px-2 py-1 rounded bg-amber-500 text-slate-950 text-xs font-extrabold cursor-pointer">ES</button>
-                    <button type="button" id="auth-lang-en" onclick="setAppLanguage('en')" class="px-2 py-1 rounded text-slate-300 text-xs font-bold cursor-pointer">EN</button>
+                <div class="absolute top-3 right-3 flex items-center gap-0.5 bg-slate-800/90 border border-slate-700 rounded-lg p-0.5">
+                    <button type="button" id="auth-lang-es" onclick="setAppLanguage('es')" class="px-1.5 py-1 rounded bg-amber-500 text-slate-950 text-[10px] font-extrabold cursor-pointer">ES</button>
+                    <button type="button" id="auth-lang-ca" onclick="setAppLanguage('ca')" class="px-1.5 py-1 rounded text-slate-300 text-[10px] font-bold cursor-pointer">CA</button>
+                    <button type="button" id="auth-lang-en" onclick="setAppLanguage('en')" class="px-1.5 py-1 rounded text-slate-300 text-[10px] font-bold cursor-pointer">EN</button>
+                    <button type="button" id="auth-lang-de" onclick="setAppLanguage('de')" class="px-1.5 py-1 rounded text-slate-300 text-[10px] font-bold cursor-pointer">DE</button>
+                    <button type="button" id="auth-lang-it" onclick="setAppLanguage('it')" class="px-1.5 py-1 rounded text-slate-300 text-[10px] font-bold cursor-pointer">IT</button>
                 </div>
                 <div class="w-20 h-20 rounded-2xl bg-white/10 border border-white/15 mx-auto flex items-center justify-center shadow-lg mb-3 overflow-hidden p-1.5">
                     <img src="Capswap_logo.png" alt="CapSwap Logo" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" class="w-full h-full object-contain">
@@ -117,7 +120,10 @@
                     <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
                         <div class="flex items-center bg-slate-100 border border-slate-200 rounded-lg p-0.5">
                             <button type="button" id="lang-btn-es" onclick="setAppLanguage('es')" class="px-1.5 py-0.5 rounded bg-slate-900 text-white text-[10px] font-bold cursor-pointer">ES</button>
+                            <button type="button" id="lang-btn-ca" onclick="setAppLanguage('ca')" class="px-1.5 py-0.5 rounded text-slate-600 hover:text-slate-900 text-[10px] font-bold cursor-pointer">CA</button>
                             <button type="button" id="lang-btn-en" onclick="setAppLanguage('en')" class="px-1.5 py-0.5 rounded text-slate-600 hover:text-slate-900 text-[10px] font-bold cursor-pointer">EN</button>
+                            <button type="button" id="lang-btn-de" onclick="setAppLanguage('de')" class="px-1.5 py-0.5 rounded text-slate-600 hover:text-slate-900 text-[10px] font-bold cursor-pointer">DE</button>
+                            <button type="button" id="lang-btn-it" onclick="setAppLanguage('it')" class="px-1.5 py-0.5 rounded text-slate-600 hover:text-slate-900 text-[10px] font-bold cursor-pointer">IT</button>
                         </div>
 
                         <button type="button" id="header-profile-btn" onclick="switchTab('profile')" class="relative z-10 flex items-center gap-1.5 bg-slate-100 hover:bg-amber-50 border border-slate-200 hover:border-amber-300 rounded-full pl-1 pr-2.5 py-1 transition-all cursor-pointer max-w-[165px] sm:max-w-[230px]">
@@ -892,17 +898,17 @@
         const SESSION_KEY = 'capswap_active_user_id';
 
         const CAP_CATEGORIES = [
-            { id: 'general', label: '-', labelEn: '-', badgeClass: 'bg-slate-200 text-slate-800 border-slate-300', pillActiveClass: 'bg-slate-600 text-white border-slate-700' },
-            { id: 'cerveza', label: 'Cerveza', labelEn: 'Beer', badgeClass: 'bg-yellow-300 text-yellow-950 border-yellow-400', pillActiveClass: 'bg-yellow-400 text-yellow-950 border-yellow-500' },
-            { id: 'cocacola', label: 'Coca-Cola', labelEn: 'Coca-Cola', badgeClass: 'bg-red-600 text-white border-red-700', pillActiveClass: 'bg-red-600 text-white border-red-700' },
-            { id: 'refresco', label: 'Refresco', labelEn: 'Soda', badgeClass: 'bg-orange-500 text-white border-orange-600', pillActiveClass: 'bg-orange-500 text-white border-orange-600' },
-            { id: 'agua', label: 'Agua', labelEn: 'Water', badgeClass: 'bg-sky-500 text-white border-sky-600', pillActiveClass: 'bg-sky-500 text-white border-sky-600' },
-            { id: 'lacteo', label: 'Lácteo', labelEn: 'Dairy', badgeClass: 'bg-pink-400 text-pink-950 border-pink-500', pillActiveClass: 'bg-pink-400 text-pink-950 border-pink-500' },
-            { id: 'alcoholico', label: 'Alcohólico', labelEn: 'Alcoholic', badgeClass: 'bg-amber-900 text-amber-50 border-amber-950', pillActiveClass: 'bg-amber-900 text-amber-50 border-amber-950' },
-            { id: 'sidra', label: 'Sidra', labelEn: 'Cider', badgeClass: 'bg-emerald-600 text-white border-emerald-700', pillActiveClass: 'bg-emerald-600 text-white border-emerald-700' },
-            { id: 'zumo', label: 'Zumo', labelEn: 'Juice', badgeClass: 'bg-purple-600 text-white border-purple-700', pillActiveClass: 'bg-purple-600 text-white border-purple-700' },
-            { id: 'vino', label: 'Vino', labelEn: 'Wine', badgeClass: 'bg-rose-900 text-rose-50 border-rose-950', pillActiveClass: 'bg-rose-900 text-rose-50 border-rose-950' },
-            { id: 'otro', label: 'Otro', labelEn: 'Other', badgeClass: 'bg-white text-slate-800 border-slate-300', pillActiveClass: 'bg-white text-slate-900 border-slate-500 ring-2 ring-slate-300' }
+            { id: 'general', label: '-', labelCa: '-', labelEn: '-', labelDe: '-', labelIt: '-', badgeClass: 'bg-slate-200 text-slate-800 border-slate-300', pillActiveClass: 'bg-slate-600 text-white border-slate-700' },
+            { id: 'cerveza', label: 'Cerveza', labelCa: 'Cervesa', labelEn: 'Beer', labelDe: 'Bier', labelIt: 'Birra', badgeClass: 'bg-yellow-300 text-yellow-950 border-yellow-400', pillActiveClass: 'bg-yellow-400 text-yellow-950 border-yellow-500' },
+            { id: 'cocacola', label: 'Coca-Cola', labelCa: 'Coca-Cola', labelEn: 'Coca-Cola', labelDe: 'Coca-Cola', labelIt: 'Coca-Cola', badgeClass: 'bg-red-600 text-white border-red-700', pillActiveClass: 'bg-red-600 text-white border-red-700' },
+            { id: 'refresco', label: 'Refresco', labelCa: 'Refresc', labelEn: 'Soda', labelDe: 'Limonade', labelIt: 'Bibita', badgeClass: 'bg-orange-500 text-white border-orange-600', pillActiveClass: 'bg-orange-500 text-white border-orange-600' },
+            { id: 'agua', label: 'Agua', labelCa: 'Aigua', labelEn: 'Water', labelDe: 'Wasser', labelIt: 'Acqua', badgeClass: 'bg-sky-500 text-white border-sky-600', pillActiveClass: 'bg-sky-500 text-white border-sky-600' },
+            { id: 'lacteo', label: 'Lácteo', labelCa: 'Làctic', labelEn: 'Dairy', labelDe: 'Milchprodukt', labelIt: 'Latticino', badgeClass: 'bg-pink-400 text-pink-950 border-pink-500', pillActiveClass: 'bg-pink-400 text-pink-950 border-pink-500' },
+            { id: 'alcoholico', label: 'Alcohólico', labelCa: 'Alcohòlic', labelEn: 'Alcoholic', labelDe: 'Alkoholisch', labelIt: 'Alcolico', badgeClass: 'bg-amber-900 text-amber-50 border-amber-950', pillActiveClass: 'bg-amber-900 text-amber-50 border-amber-950' },
+            { id: 'sidra', label: 'Sidra', labelCa: 'Sidra', labelEn: 'Cider', labelDe: 'Apfelwein', labelIt: 'Sidro', badgeClass: 'bg-emerald-600 text-white border-emerald-700', pillActiveClass: 'bg-emerald-600 text-white border-emerald-700' },
+            { id: 'zumo', label: 'Zumo', labelCa: 'Suc', labelEn: 'Juice', labelDe: 'Saft', labelIt: 'Succo', badgeClass: 'bg-purple-600 text-white border-purple-700', pillActiveClass: 'bg-purple-600 text-white border-purple-700' },
+            { id: 'vino', label: 'Vino', labelCa: 'Vi', labelEn: 'Wine', labelDe: 'Wein', labelIt: 'Vino', badgeClass: 'bg-rose-900 text-rose-50 border-rose-950', pillActiveClass: 'bg-rose-900 text-rose-50 border-rose-950' },
+            { id: 'otro', label: 'Otro', labelCa: 'Altre', labelEn: 'Other', labelDe: 'Sonstiges', labelIt: 'Altro', badgeClass: 'bg-white text-slate-800 border-slate-300', pillActiveClass: 'bg-white text-slate-900 border-slate-500 ring-2 ring-slate-300' }
         ];
 
         const COUNTRIES_LIST = [
@@ -976,6 +982,18 @@
 
         const I18N = {
             es: {
+                authSubtitle: 'Comunidad de intercambio y colección de chapas',
+                authTabLogin: 'Iniciar Sesión',
+                authTabRegister: 'Crear Cuenta',
+                lblLoginIdent: 'Usuario o Correo Electrónico',
+                lblLoginPass: 'Contraseña',
+                btnLoginSubmit: 'Entrar a mi Colección',
+                lblRegName: 'Nombre completo',
+                lblRegUser: 'Nombre de usuario',
+                lblRegEmail: 'Correo electrónico',
+                lblRegLocation: 'Ciudad / País',
+                lblRegPass: 'Contraseña',
+                btnRegSubmit: 'Crear Cuenta y Empezar',
                 navRepetidas: 'Repetidas',
                 navBusco: 'Busco',
                 navExplorar: 'Explorar',
@@ -1041,7 +1059,97 @@
                 rejectTradeBtn: 'Rechazar cambio',
                 downloadSummaryBtn: 'Descargar Imagen Resumen'
             },
+            ca: {
+                authSubtitle: 'Comunitat d’intercanvi i col·lecció de xapes',
+                authTabLogin: 'Inicia la sessió',
+                authTabRegister: 'Crea un compte',
+                lblLoginIdent: 'Usuari o correu electrònic',
+                lblLoginPass: 'Contrasenya',
+                btnLoginSubmit: 'Entrar a la meva col·lecció',
+                lblRegName: 'Nom complet',
+                lblRegUser: 'Nom d’usuari',
+                lblRegEmail: 'Correu electrònic',
+                lblRegLocation: 'Ciutat / País',
+                lblRegPass: 'Contrasenya',
+                btnRegSubmit: 'Crear compte i començar',
+                navRepetidas: 'Repetides',
+                navBusco: 'Busco',
+                navExplorar: 'Explorar',
+                navCambios: 'Canvis',
+                myProfile: 'El meu perfil',
+                myCollectionTitle: 'Les meves xapes repetides',
+                addCapBtn: 'Afegir xapa',
+                wishlistTitle: 'Xapes que busco',
+                addWishBtn: 'Afegir desig',
+                exploreTitle: 'Explorar col·leccionistes',
+                exploreSubtitle: 'Selecciona un col·leccionista registrat per veure les seves repetides i proposar un canvi.',
+                showAllCollectors: 'Veure’ls tots',
+                hideAllCollectors: 'Amagar llista',
+                historyTitle: 'Intercanvis',
+                historySubtitle: 'Gestiona les teves sol·licituds enviades i rebudes, canvis en curs i historial.',
+                tabRequests: 'Sol·licituds',
+                tabInProgress: 'Intercanviant',
+                tabCompleted: 'Finalitzat',
+                reqDirReceived: 'Rebudes',
+                reqDirSent: 'Enviades',
+                capsYouRequestTitle: 'Xapes que demanes de la seva galeria',
+                sendTradeBtn: 'Enviar petició de canvi',
+                tradeMsgPlaceholder: 'Missatge opcional per al col·leccionista...',
+                searchCollectorPlaceholder: 'Filtra per @usuari, nom o ciutat...',
+                searchMyCapsPlaceholder: 'Cerca a les meves repetides per nota, marca o país...',
+                allCategories: 'Totes',
+                editProfileTitle: 'Editar el meu perfil',
+                profName: 'Nom complet',
+                profUser: 'Nom d’usuari',
+                profEmail: 'Correu electrònic',
+                profLocation: 'Ciutat / País',
+                profBio: 'Biografia / Interessos de col·lecció',
+                profPostalBadge: 'Només visible si la comparteixes',
+                profPostalHint: 'Ningú podrà veure aquesta adreça al teu perfil públic. Només s’enviarà si prems <strong>"Compartir la meva adreça postal"</strong> dins d’un xat d’intercanvi.',
+                backupTitle: 'Còpia de seguretat del teu compte',
+                backupDesc: 'Descarrega o restaura les teves repetides, desitjos i historial en un fitxer .json.',
+                exportBackup: 'Exportar JSON',
+                restoreBackup: 'Restaurar',
+                deleteProfile: 'Eliminar perfil',
+                saveProfile: 'Desar perfil',
+                logoutBtn: 'Tancar sessió',
+                statModels: 'Models',
+                statDuplicates: 'Repetides',
+                statSwaps: 'Canvis',
+                noRatingsYet: 'Sense valoracions',
+                unopenedBadge: 'Sense obrir',
+                unopenedLabel: '✨ Xapa sense obrir (nova / sense fer servir)',
+                circularScannerBtn: 'Escàner circular',
+                compareFaceToFace: 'Comparar cara a cara',
+                chatTitle: 'Xat de l’intercanvi',
+                chatShareAddressBtn: 'Compartir la meva adreça postal',
+                chatMarkSentBtn: 'Marcar com a enviat avui',
+                chatPlaceholder: 'Escriu un missatge al col·leccionista...',
+                chatSendBtn: 'Enviar',
+                capsYouReceive: 'Xapes que reps',
+                capsYouGive: 'Xapes que entregues',
+                noneLabel: 'Cap',
+                chooseTheirCaps: 'Triar les seves xapes',
+                acceptTradeBtn: 'Acceptar canvi',
+                confirmReceiptBtn: 'Confirmar recepció',
+                claimBtn: 'Reclamar',
+                cancelRequestBtn: 'Cancel·lar sol·licitud',
+                rejectTradeBtn: 'Rebutjar canvi',
+                downloadSummaryBtn: 'Descarregar imatge resum'
+            },
             en: {
+                authSubtitle: 'Crown cap trading and collecting community',
+                authTabLogin: 'Log In',
+                authTabRegister: 'Create Account',
+                lblLoginIdent: 'Username or Email Address',
+                lblLoginPass: 'Password',
+                btnLoginSubmit: 'Enter my Collection',
+                lblRegName: 'Full name',
+                lblRegUser: 'Username',
+                lblRegEmail: 'Email address',
+                lblRegLocation: 'City / Country',
+                lblRegPass: 'Password',
+                btnRegSubmit: 'Create Account & Start',
                 navRepetidas: 'Duplicates',
                 navBusco: 'Wishlist',
                 navExplorar: 'Explore',
@@ -1106,6 +1214,162 @@
                 cancelRequestBtn: 'Cancel request',
                 rejectTradeBtn: 'Reject swap',
                 downloadSummaryBtn: 'Download Summary Image'
+            },
+            de: {
+                authSubtitle: 'Community zum Tauschen und Sammeln von Kronkorken',
+                authTabLogin: 'Anmelden',
+                authTabRegister: 'Konto erstellen',
+                lblLoginIdent: 'Benutzername oder E-Mail',
+                lblLoginPass: 'Passwort',
+                btnLoginSubmit: 'Zu meiner Sammlung',
+                lblRegName: 'Vollständiger Name',
+                lblRegUser: 'Benutzername',
+                lblRegEmail: 'E-Mail-Adresse',
+                lblRegLocation: 'Stadt / Land',
+                lblRegPass: 'Passwort',
+                btnRegSubmit: 'Konto erstellen & starten',
+                navRepetidas: 'Doppelte',
+                navBusco: 'Gesucht',
+                navExplorar: 'Entdecken',
+                navCambios: 'Tausch',
+                myProfile: 'Mein Profil',
+                myCollectionTitle: 'Meine doppelten Kronkorken',
+                addCapBtn: 'Kronkorken hinzufügen',
+                wishlistTitle: 'Gesuchte Kronkorken',
+                addWishBtn: 'Wunsch hinzufügen',
+                exploreTitle: 'Sammler entdecken',
+                exploreSubtitle: 'Wähle einen registrierten Sammler aus, um seine Doppelten anzusehen und einen Tausch vorzuschlagen.',
+                showAllCollectors: 'Alle anzeigen',
+                hideAllCollectors: 'Liste ausblenden',
+                historyTitle: 'Tauschbörse',
+                historySubtitle: 'Verwalte gesendete und erhaltene Anfragen, laufende Tauschgeschäfte und den Verlauf.',
+                tabRequests: 'Anfragen',
+                tabInProgress: 'Im Tausch',
+                tabCompleted: 'Abgeschlossen',
+                reqDirReceived: 'Erhalten',
+                reqDirSent: 'Gesendet',
+                capsYouRequestTitle: 'Kronkorken aus seiner Galerie anfragen',
+                sendTradeBtn: 'Tauschanfrage senden',
+                tradeMsgPlaceholder: 'Optionale Nachricht an den Sammler...',
+                searchCollectorPlaceholder: 'Nach @Benutzer, Name oder Stadt filtern...',
+                searchMyCapsPlaceholder: 'In meinen Doppelten nach Notiz, Marke oder Land suchen...',
+                allCategories: 'Alle',
+                editProfileTitle: 'Mein Profil bearbeiten',
+                profName: 'Vollständiger Name',
+                profUser: 'Benutzername',
+                profEmail: 'E-Mail-Adresse',
+                profLocation: 'Stadt / Land',
+                profBio: 'Biografie / Sammelgebiete',
+                profPostalBadge: 'Nur sichtbar, wenn du sie teilst',
+                profPostalHint: 'Niemand kann diese Adresse in deinem öffentlichen Profil sehen. Sie wird nur gesendet, wenn du im Tausch-Chat auf <strong>"Meine Postanschrift teilen"</strong> tippst.',
+                backupTitle: 'Kontosicherung & Wiederherstellung',
+                backupDesc: 'Lade deine Doppelten, Wunschliste und deinen Verlauf als .json-Datei herunter oder stelle sie wieder her.',
+                exportBackup: 'JSON exportieren',
+                restoreBackup: 'Wiederherstellen',
+                deleteProfile: 'Profil löschen',
+                saveProfile: 'Profil speichern',
+                logoutBtn: 'Abmelden',
+                statModels: 'Modelle',
+                statDuplicates: 'Doppelte',
+                statSwaps: 'Tausche',
+                noRatingsYet: 'Keine Bewertungen',
+                unopenedBadge: 'Ungeöffnet',
+                unopenedLabel: '✨ Ungeöffneter Kronkorken (neu / unbenutzt)',
+                circularScannerBtn: 'Kreis-Scanner',
+                compareFaceToFace: 'Direktvergleich',
+                chatTitle: 'Tausch-Chat',
+                chatShareAddressBtn: 'Meine Postanschrift teilen',
+                chatMarkSentBtn: 'Heute als versendet markieren',
+                chatPlaceholder: 'Schreibe eine Nachricht an den Sammler...',
+                chatSendBtn: 'Senden',
+                capsYouReceive: 'Kronkorken, die du erhältst',
+                capsYouGive: 'Kronkorken, die du abgibst',
+                noneLabel: 'Keine',
+                chooseTheirCaps: 'Seine Kronkorken wählen',
+                acceptTradeBtn: 'Tausch annehmen',
+                confirmReceiptBtn: 'Empfang bestätigen',
+                claimBtn: 'Problem melden',
+                cancelRequestBtn: 'Anfrage abbrechen',
+                rejectTradeBtn: 'Tausch ablehnen',
+                downloadSummaryBtn: 'Zusammenfassung als Bild laden'
+            },
+            it: {
+                authSubtitle: 'Comunità di scambio e collezione di tappi a corona',
+                authTabLogin: 'Accedi',
+                authTabRegister: 'Crea account',
+                lblLoginIdent: 'Nome utente o email',
+                lblLoginPass: 'Password',
+                btnLoginSubmit: 'Entra nella mia collezione',
+                lblRegName: 'Nome completo',
+                lblRegUser: 'Nome utente',
+                lblRegEmail: 'Indirizzo email',
+                lblRegLocation: 'Città / Paese',
+                lblRegPass: 'Password',
+                btnRegSubmit: 'Crea account e inizia',
+                navRepetidas: 'Doppioni',
+                navBusco: 'Cerco',
+                navExplorar: 'Esplora',
+                navCambios: 'Scambi',
+                myProfile: 'Il mio profilo',
+                myCollectionTitle: 'I miei tappi doppioni',
+                addCapBtn: 'Aggiungi tappo',
+                wishlistTitle: 'Tappi che cerco',
+                addWishBtn: 'Aggiungi desiderio',
+                exploreTitle: 'Esplora collezionisti',
+                exploreSubtitle: 'Seleziona un collezionista registrato per vedere i suoi doppioni e proporre uno scambio.',
+                showAllCollectors: 'Mostra tutti',
+                hideAllCollectors: 'Nascondi lista',
+                historyTitle: 'Scambi',
+                historySubtitle: 'Gestisci le richieste inviate e ricevute, gli scambi in corso e lo storico.',
+                tabRequests: 'Richieste',
+                tabInProgress: 'In scambio',
+                tabCompleted: 'Completati',
+                reqDirReceived: 'Ricevute',
+                reqDirSent: 'Inviate',
+                capsYouRequestTitle: 'Tappi che richiedi dalla sua galleria',
+                sendTradeBtn: 'Invia richiesta di scambio',
+                tradeMsgPlaceholder: 'Messaggio opzionale per il collezionista...',
+                searchCollectorPlaceholder: 'Filtra per @utente, nome o città...',
+                searchMyCapsPlaceholder: 'Cerca nei miei doppioni per note, marca o paese...',
+                allCategories: 'Tutte',
+                editProfileTitle: 'Modifica il mio profilo',
+                profName: 'Nome completo',
+                profUser: 'Nome utente',
+                profEmail: 'Indirizzo email',
+                profLocation: 'Città / Paese',
+                profBio: 'Biografia / Interessi di collezione',
+                profPostalBadge: 'Visibile solo se la condividi',
+                profPostalHint: 'Nessuno può vedere questo indirizzo sul tuo profilo pubblico. Verrà inviato solo se premi <strong>"Condividi il mio indirizzo postale"</strong> nella chat di scambio.',
+                backupTitle: 'Backup e ripristino account',
+                backupDesc: 'Scarica o ripristina i tuoi doppioni, la lista desideri e lo storico in un file .json.',
+                exportBackup: 'Esporta JSON',
+                restoreBackup: 'Ripristina',
+                deleteProfile: 'Elimina profilo',
+                saveProfile: 'Salva profilo',
+                logoutBtn: 'Esci',
+                statModels: 'Modelli',
+                statDuplicates: 'Doppioni',
+                statSwaps: 'Scambi',
+                noRatingsYet: 'Nessuna valutazione',
+                unopenedBadge: 'Non aperto',
+                unopenedLabel: '✨ Tappo non aperto (nuovo / mai usato)',
+                circularScannerBtn: 'Scanner circolare',
+                compareFaceToFace: 'Confronta faccia a faccia',
+                chatTitle: 'Chat dello scambio',
+                chatShareAddressBtn: 'Condividi il mio indirizzo postale',
+                chatMarkSentBtn: 'Segna come spedito oggi',
+                chatPlaceholder: 'Scrivi un messaggio al collezionista...',
+                chatSendBtn: 'Invia',
+                capsYouReceive: 'Tappi che ricevi',
+                capsYouGive: 'Tappi che cedi',
+                noneLabel: 'Nessuno',
+                chooseTheirCaps: 'Scegli i suoi tappi',
+                acceptTradeBtn: 'Accetta scambio',
+                confirmReceiptBtn: 'Conferma ricezione',
+                claimBtn: 'Segnala problema',
+                cancelRequestBtn: 'Annulla richiesta',
+                rejectTradeBtn: 'Rifiuta scambio',
+                downloadSummaryBtn: 'Scarica immagine riepilogo'
             }
         };
 
@@ -1120,12 +1384,16 @@
         function getCategoryLabel(catId) {
             const found = CAP_CATEGORIES.find(c => c.id === catId);
             if (!found) return '-';
-            return appState.lang === 'en' ? found.labelEn : found.label;
+            if (appState.lang === 'ca') return found.labelCa || found.label;
+            if (appState.lang === 'en') return found.labelEn || found.label;
+            if (appState.lang === 'de') return found.labelDe || found.label;
+            if (appState.lang === 'it') return found.labelIt || found.label;
+            return found.label;
         }
 
         function getCategoryBadgeHtml(catId) {
             const meta = getCategoryMeta(catId);
-            const lbl = appState.lang === 'en' ? meta.labelEn : meta.label;
+            const lbl = getCategoryLabel(catId);
             return `<span class="px-1.5 py-0.2 rounded border text-[9px] font-bold ${meta.badgeClass}">${lbl}</span>`;
         }
 
@@ -1698,7 +1966,7 @@
             `;
             const catBtns = CAP_CATEGORIES.map(c => {
                 const active = appState.myCategoryFilter === c.id;
-                const lbl = appState.lang === 'en' ? c.labelEn : c.label;
+                const lbl = getCategoryLabel(c.id);
                 const btnStyle = active
                     ? `${c.pillActiveClass} shadow-xs scale-105`
                     : `${c.badgeClass} opacity-80 hover:opacity-100`;
@@ -1786,7 +2054,7 @@
             if (!container) return;
             container.innerHTML = CAP_CATEGORIES.map(c => {
                 const active = c.id === selectedId;
-                const lbl = appState.lang === 'en' ? c.labelEn : c.label;
+                const lbl = getCategoryLabel(c.id);
                 const styleCls = active
                     ? `${c.pillActiveClass} ring-2 ring-offset-1 ring-slate-900/30`
                     : `${c.badgeClass} opacity-75 hover:opacity-100`;
@@ -3839,32 +4107,28 @@
         // TRADUCCIÓN COMPLETA DE LA INTERFAZ (ESPAÑOL / INGLÉS)
         // =========================================================
         function setAppLanguage(lang) {
-            appState.lang = lang === 'en' ? 'en' : 'es';
+            const supportedLangs = ['es', 'ca', 'en', 'de', 'it'];
+            appState.lang = supportedLangs.includes(lang) ? lang : 'es';
             try {
                 localStorage.setItem('capswap_lang', appState.lang);
             } catch (e) {}
 
-            const esBtn = document.getElementById('lang-btn-es');
-            const enBtn = document.getElementById('lang-btn-en');
-            const authEsBtn = document.getElementById('auth-lang-es');
-            const authEnBtn = document.getElementById('auth-lang-en');
+            supportedLangs.forEach(code => {
+                const topBtn = document.getElementById(`lang-btn-${code}`);
+                const authBtn = document.getElementById(`auth-lang-${code}`);
+                const isActive = appState.lang === code;
 
-            if (esBtn && enBtn) {
-                esBtn.className = appState.lang === 'es'
-                    ? 'px-1.5 py-0.5 rounded bg-slate-900 text-white text-[10px] font-bold cursor-pointer'
-                    : 'px-1.5 py-0.5 rounded text-slate-600 hover:text-slate-900 text-[10px] font-bold cursor-pointer';
-                enBtn.className = appState.lang === 'en'
-                    ? 'px-1.5 py-0.5 rounded bg-slate-900 text-white text-[10px] font-bold cursor-pointer'
-                    : 'px-1.5 py-0.5 rounded text-slate-600 hover:text-slate-900 text-[10px] font-bold cursor-pointer';
-            }
-            if (authEsBtn && authEnBtn) {
-                authEsBtn.className = appState.lang === 'es'
-                    ? 'px-2 py-1 rounded bg-amber-500 text-slate-950 text-xs font-extrabold cursor-pointer'
-                    : 'px-2 py-1 rounded text-slate-300 text-xs font-bold cursor-pointer';
-                authEnBtn.className = appState.lang === 'en'
-                    ? 'px-2 py-1 rounded bg-amber-500 text-slate-950 text-xs font-extrabold cursor-pointer'
-                    : 'px-2 py-1 rounded text-slate-300 text-xs font-bold cursor-pointer';
-            }
+                if (topBtn) {
+                    topBtn.className = isActive
+                        ? 'px-1.5 py-0.5 rounded bg-slate-900 text-white text-[10px] font-bold cursor-pointer'
+                        : 'px-1.5 py-0.5 rounded text-slate-600 hover:text-slate-900 text-[10px] font-bold cursor-pointer';
+                }
+                if (authBtn) {
+                    authBtn.className = isActive
+                        ? 'px-1.5 py-1 rounded bg-amber-500 text-slate-950 text-[10px] font-extrabold cursor-pointer'
+                        : 'px-1.5 py-1 rounded text-slate-300 text-[10px] font-bold cursor-pointer';
+                }
+            });
 
             const setText = (id, key) => {
                 const el = document.getElementById(id);
@@ -3874,6 +4138,19 @@
                 const el = document.getElementById(id);
                 if (el) el.innerHTML = t(key);
             };
+
+            setText('auth-subtitle', 'authSubtitle');
+            setText('auth-tab-login', 'authTabLogin');
+            setText('auth-tab-register', 'authTabRegister');
+            setText('lbl-login-ident', 'lblLoginIdent');
+            setText('lbl-login-pass', 'lblLoginPass');
+            setText('btn-login-submit', 'btnLoginSubmit');
+            setText('lbl-reg-name', 'lblRegName');
+            setText('lbl-reg-user', 'lblRegUser');
+            setText('lbl-reg-email', 'lblRegEmail');
+            setText('lbl-reg-location', 'lblRegLocation');
+            setText('lbl-reg-pass', 'lblRegPass');
+            setText('btn-reg-submit', 'btnRegSubmit');
 
             setText('nav-lbl-repetidas', 'navRepetidas');
             setText('nav-lbl-busco', 'navBusco');
