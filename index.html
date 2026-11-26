@@ -30,12 +30,28 @@
 
         <div class="relative z-10 w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
             <div class="bg-slate-900 px-6 py-7 text-center text-white relative">
-                <div class="absolute top-3 right-3 flex items-center gap-0.5 bg-slate-800/90 border border-slate-700 rounded-lg p-0.5">
-                    <button type="button" id="auth-lang-es" onclick="setAppLanguage('es')" class="px-1.5 py-1 rounded bg-amber-500 text-slate-950 text-[10px] font-extrabold cursor-pointer">ES</button>
-                    <button type="button" id="auth-lang-ca" onclick="setAppLanguage('ca')" class="px-1.5 py-1 rounded text-slate-300 text-[10px] font-bold cursor-pointer">CA</button>
-                    <button type="button" id="auth-lang-en" onclick="setAppLanguage('en')" class="px-1.5 py-1 rounded text-slate-300 text-[10px] font-bold cursor-pointer">EN</button>
-                    <button type="button" id="auth-lang-de" onclick="setAppLanguage('de')" class="px-1.5 py-1 rounded text-slate-300 text-[10px] font-bold cursor-pointer">DE</button>
-                    <button type="button" id="auth-lang-it" onclick="setAppLanguage('it')" class="px-1.5 py-1 rounded text-slate-300 text-[10px] font-bold cursor-pointer">IT</button>
+                <div class="absolute top-3 right-3" data-lang-dropdown-root>
+                    <button type="button" onclick="toggleLangMenu('auth-lang-menu', event)" class="flex items-center gap-1.5 bg-slate-800/95 hover:bg-slate-700 border border-slate-700 rounded-xl px-2.5 py-1.5 text-white text-xs font-extrabold shadow-xs transition-colors cursor-pointer">
+                        <i data-lucide="menu" class="w-3.5 h-3.5 text-amber-400"></i>
+                        <span id="auth-lang-current">ES</span>
+                    </button>
+                    <div id="auth-lang-menu" class="hidden absolute right-0 mt-1.5 w-36 bg-slate-900 border border-slate-700 rounded-2xl shadow-xl py-1 z-40 text-left overflow-hidden">
+                        <button type="button" id="auth-lang-es" onclick="setAppLanguage('es')" class="w-full px-3 py-2 text-xs font-bold flex items-center justify-between text-amber-400 bg-slate-800/80 cursor-pointer">
+                            <span>Español</span><span class="text-[10px] opacity-80">ES</span>
+                        </button>
+                        <button type="button" id="auth-lang-ca" onclick="setAppLanguage('ca')" class="w-full px-3 py-2 text-xs font-bold flex items-center justify-between text-slate-200 hover:bg-slate-800 cursor-pointer">
+                            <span>Català</span><span class="text-[10px] opacity-80">CA</span>
+                        </button>
+                        <button type="button" id="auth-lang-en" onclick="setAppLanguage('en')" class="w-full px-3 py-2 text-xs font-bold flex items-center justify-between text-slate-200 hover:bg-slate-800 cursor-pointer">
+                            <span>English</span><span class="text-[10px] opacity-80">EN</span>
+                        </button>
+                        <button type="button" id="auth-lang-de" onclick="setAppLanguage('de')" class="w-full px-3 py-2 text-xs font-bold flex items-center justify-between text-slate-200 hover:bg-slate-800 cursor-pointer">
+                            <span>Deutsch</span><span class="text-[10px] opacity-80">DE</span>
+                        </button>
+                        <button type="button" id="auth-lang-it" onclick="setAppLanguage('it')" class="w-full px-3 py-2 text-xs font-bold flex items-center justify-between text-slate-200 hover:bg-slate-800 cursor-pointer">
+                            <span>Italiano</span><span class="text-[10px] opacity-80">IT</span>
+                        </button>
+                    </div>
                 </div>
                 <div class="w-20 h-20 rounded-2xl bg-white/10 border border-white/15 mx-auto flex items-center justify-center shadow-lg mb-3 overflow-hidden p-1.5">
                     <img src="Capswap_logo.png" alt="CapSwap Logo" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" class="w-full h-full object-contain">
@@ -118,12 +134,28 @@
                     </button>
 
                     <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-                        <div class="flex items-center bg-slate-100 border border-slate-200 rounded-lg p-0.5">
-                            <button type="button" id="lang-btn-es" onclick="setAppLanguage('es')" class="px-1.5 py-0.5 rounded bg-slate-900 text-white text-[10px] font-bold cursor-pointer">ES</button>
-                            <button type="button" id="lang-btn-ca" onclick="setAppLanguage('ca')" class="px-1.5 py-0.5 rounded text-slate-600 hover:text-slate-900 text-[10px] font-bold cursor-pointer">CA</button>
-                            <button type="button" id="lang-btn-en" onclick="setAppLanguage('en')" class="px-1.5 py-0.5 rounded text-slate-600 hover:text-slate-900 text-[10px] font-bold cursor-pointer">EN</button>
-                            <button type="button" id="lang-btn-de" onclick="setAppLanguage('de')" class="px-1.5 py-0.5 rounded text-slate-600 hover:text-slate-900 text-[10px] font-bold cursor-pointer">DE</button>
-                            <button type="button" id="lang-btn-it" onclick="setAppLanguage('it')" class="px-1.5 py-0.5 rounded text-slate-600 hover:text-slate-900 text-[10px] font-bold cursor-pointer">IT</button>
+                        <div class="relative" data-lang-dropdown-root>
+                            <button type="button" onclick="toggleLangMenu('app-lang-menu', event)" class="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 text-xs font-extrabold transition-colors cursor-pointer">
+                                <i data-lucide="menu" class="w-3.5 h-3.5 text-slate-700"></i>
+                                <span id="app-lang-current">ES</span>
+                            </button>
+                            <div id="app-lang-menu" class="hidden absolute right-0 mt-1.5 w-36 bg-white border border-slate-200 rounded-2xl shadow-xl py-1 z-40 text-left overflow-hidden">
+                                <button type="button" id="lang-btn-es" onclick="setAppLanguage('es')" class="w-full px-3 py-2 text-xs font-bold flex items-center justify-between bg-amber-50 text-amber-900 cursor-pointer">
+                                    <span>Español</span><span class="text-[10px] opacity-75">ES</span>
+                                </button>
+                                <button type="button" id="lang-btn-ca" onclick="setAppLanguage('ca')" class="w-full px-3 py-2 text-xs font-bold flex items-center justify-between text-slate-700 hover:bg-slate-50 cursor-pointer">
+                                    <span>Català</span><span class="text-[10px] opacity-75">CA</span>
+                                </button>
+                                <button type="button" id="lang-btn-en" onclick="setAppLanguage('en')" class="w-full px-3 py-2 text-xs font-bold flex items-center justify-between text-slate-700 hover:bg-slate-50 cursor-pointer">
+                                    <span>English</span><span class="text-[10px] opacity-75">EN</span>
+                                </button>
+                                <button type="button" id="lang-btn-de" onclick="setAppLanguage('de')" class="w-full px-3 py-2 text-xs font-bold flex items-center justify-between text-slate-700 hover:bg-slate-50 cursor-pointer">
+                                    <span>Deutsch</span><span class="text-[10px] opacity-75">DE</span>
+                                </button>
+                                <button type="button" id="lang-btn-it" onclick="setAppLanguage('it')" class="w-full px-3 py-2 text-xs font-bold flex items-center justify-between text-slate-700 hover:bg-slate-50 cursor-pointer">
+                                    <span>Italiano</span><span class="text-[10px] opacity-75">IT</span>
+                                </button>
+                            </div>
                         </div>
 
                         <button type="button" id="header-profile-btn" onclick="switchTab('profile')" class="relative z-10 flex items-center gap-1.5 bg-slate-100 hover:bg-amber-50 border border-slate-200 hover:border-amber-300 rounded-full pl-1 pr-2.5 py-1 transition-all cursor-pointer max-w-[165px] sm:max-w-[230px]">
@@ -4106,12 +4138,43 @@
         // =========================================================
         // TRADUCCIÓN COMPLETA DE LA INTERFAZ (ESPAÑOL / INGLÉS)
         // =========================================================
+        function closeAllLangMenus() {
+            ['auth-lang-menu', 'app-lang-menu'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+        }
+
+        function toggleLangMenu(menuId, event) {
+            if (event) event.stopPropagation();
+            const target = document.getElementById(menuId);
+            if (!target) return;
+            const willOpen = target.classList.contains('hidden');
+            closeAllLangMenus();
+            if (willOpen) {
+                target.classList.remove('hidden');
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('[data-lang-dropdown-root]')) {
+                closeAllLangMenus();
+            }
+        });
+
         function setAppLanguage(lang) {
             const supportedLangs = ['es', 'ca', 'en', 'de', 'it'];
             appState.lang = supportedLangs.includes(lang) ? lang : 'es';
             try {
                 localStorage.setItem('capswap_lang', appState.lang);
             } catch (e) {}
+
+            closeAllLangMenus();
+
+            const authCurrent = document.getElementById('auth-lang-current');
+            const appCurrent = document.getElementById('app-lang-current');
+            if (authCurrent) authCurrent.textContent = appState.lang.toUpperCase();
+            if (appCurrent) appCurrent.textContent = appState.lang.toUpperCase();
 
             supportedLangs.forEach(code => {
                 const topBtn = document.getElementById(`lang-btn-${code}`);
@@ -4120,13 +4183,13 @@
 
                 if (topBtn) {
                     topBtn.className = isActive
-                        ? 'px-1.5 py-0.5 rounded bg-slate-900 text-white text-[10px] font-bold cursor-pointer'
-                        : 'px-1.5 py-0.5 rounded text-slate-600 hover:text-slate-900 text-[10px] font-bold cursor-pointer';
+                        ? 'w-full px-3 py-2 text-xs font-bold flex items-center justify-between bg-amber-50 text-amber-900 cursor-pointer'
+                        : 'w-full px-3 py-2 text-xs font-bold flex items-center justify-between text-slate-700 hover:bg-slate-50 cursor-pointer';
                 }
                 if (authBtn) {
                     authBtn.className = isActive
-                        ? 'px-1.5 py-1 rounded bg-amber-500 text-slate-950 text-[10px] font-extrabold cursor-pointer'
-                        : 'px-1.5 py-1 rounded text-slate-300 text-[10px] font-bold cursor-pointer';
+                        ? 'w-full px-3 py-2 text-xs font-bold flex items-center justify-between text-amber-400 bg-slate-800/80 cursor-pointer'
+                        : 'w-full px-3 py-2 text-xs font-bold flex items-center justify-between text-slate-200 hover:bg-slate-800 cursor-pointer';
                 }
             });
 
